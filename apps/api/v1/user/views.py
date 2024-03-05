@@ -10,6 +10,7 @@ import re
 from apps.models import UserProfile
 from apps.kube_utils import get_role_yaml, get_role_binding_yaml
 import subprocess
+from apps.api.v1.oai.views import create_all_components, delete_all_components
 
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
@@ -32,7 +33,7 @@ def modified_create_user(request):
     if number_of_users < 1:
         return Response({'error': 'Please provide a positive integer value.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    config.load_kube_config()  # Load the kubeconfig file
+    config.load_kube_config() 
     api_instance = client.CoreV1Api()
     rbac_api_instance = client.RbacAuthorizationV1Api()
 
@@ -61,12 +62,9 @@ def modified_create_user(request):
             if not User.objects.filter(username=username).exists():
                 try:
                     with transaction.atomic():
-                        # Create the user
                         new_user = User.objects.create_user(username=username, password=password)
-                    
-                        # Only create UserProfile if it doesn't exist
                         UserProfile.objects.get_or_create(user=new_user, defaults={'level': 1, 'completion': 0.0})
-
+                    
                         # Create the user's namespace
                         subprocess.run(["kubectl", "create", "namespace", namespace])
 
@@ -77,6 +75,10 @@ def modified_create_user(request):
                         # Apply the role and role binding
                         subprocess.run(["kubectl", "apply", "-f", "-"], input=role_yaml.encode('utf-8'))
                         subprocess.run(["kubectl", "apply", "-f", "-"], input=role_binding_yaml.encode('utf-8'))
+
+                        response = create_all_components(request, namespace)
+                        if response != "Success":
+                            return HttpResponse(response)
 
                         created_users.append(username)
                 except IntegrityError as e:
@@ -139,6 +141,10 @@ def delete_user(request, pk):
             subprocess.run(["kubectl", "delete", "namespace", namespace])
         except ApiException as e:
             return Response({'error': f'Failed to delete namespace: {e}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        response = delete_all_components(request, namespace)
+        if response != "Success":
+            return HttpResponse(response)
 
         # Delete the user after cleaning up associated resources
         user.delete()
