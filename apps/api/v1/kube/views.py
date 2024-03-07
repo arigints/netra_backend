@@ -5,6 +5,7 @@ from rest_framework.response import Response
 import json
 from django.http import JsonResponse
 import subprocess
+from rest_framework import status
 
 def get_network_status_annotations():
     # Load your Kubernetes configuration, either in-cluster or from a local Kubeconfig file
@@ -323,3 +324,44 @@ def restart_multiue_ue2(request):
     except subprocess.CalledProcessError as e:
         # Return an error response if the subprocess call failed
         return Response({"error": "An error occurred while restarting the deployment.", "details": str(e)}, status=500)
+
+
+###MONITORING - LOGS###
+from datetime import datetime
+
+def parse_kubernetes_timestamp(timestamp_str):
+    # Trim the nanoseconds and ignore the timezone for simplicity
+    # Kubernetes timestamp format: 2024-03-07T14:56:38.473658908+07:00
+    # Simplified format: 2024-03-07T14:56:38
+    simplified_timestamp_str = timestamp_str.split('.')[0]
+    return datetime.fromisoformat(simplified_timestamp_str)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_pod_logs(request, pod_name):
+    namespace = request.user.username + "-namespace"
+    try:
+        cmd = [
+            "kubectl", "logs", pod_name,
+            "-n", namespace,
+            "--tail=10",  # Fetch the last 10 lines of logs
+            "--timestamps"
+        ]
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        logs = result.stdout.strip().split('\n')
+
+        structured_logs = []
+        for line in logs:
+            parts = line.split(maxsplit=1)  # Split only on the first space
+            if len(parts) == 2:
+                timestamp_str, log_message = parts
+                # Parse the timestamp and reformat it to show only the time
+                timestamp = parse_kubernetes_timestamp(timestamp_str)
+                time_only_str = timestamp.strftime('%H:%M:%S')
+                structured_logs.append({"timestamp": time_only_str, "log": log_message})
+        
+        return JsonResponse(structured_logs, safe=False)
+
+    except subprocess.CalledProcessError as e:
+        error_message = f"Failed to fetch logs: {e.stderr}"
+        return JsonResponse({"error": error_message}, status=400)
