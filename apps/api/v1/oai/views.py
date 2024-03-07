@@ -8,6 +8,9 @@ from apps.models import UserProfile
 import json
 from django.http import JsonResponse
 from pathlib import Path
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework import status
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -33,7 +36,8 @@ SINGLE_UE_VALUES_FILE_PATH = os.path.join(SINGLE_UE_BASE_DIR, 'values-ue.yaml')
 MULTI_GNB_CU_VALUES_FILE_PATH = os.path.join(MULTI_GNB_CU_BASE_DIR, 'values-cu.yaml')
 MULTI_GNB_DU1_VALUES_FILE_PATH = os.path.join(MULTI_GNB_DU1_BASE_DIR, 'values-du.yaml')
 MULTI_GNB_DU2_VALUES_FILE_PATH = os.path.join(MULTI_GNB_DU2_BASE_DIR, 'values-du.yaml')
-MULTI_GNB_UE_VALUES_FILE_PATH = os.path.join(MULTI_GNB_UE_BASE_DIR, 'values-ue.yaml')
+MULTI_GNB_UE1_VALUES_FILE_PATH = os.path.join(MULTI_GNB_UE1_BASE_DIR, 'values-ue.yaml')
+MULTI_GNB_UE2_VALUES_FILE_PATH = os.path.join(MULTI_GNB_UE2_BASE_DIR, 'values-ue.yaml')
 
 MULTI_UE_CU_VALUES_FILE_PATH = os.path.join(MULTI_UE_CU_BASE_DIR, 'values-cu.yaml')
 MULTI_UE_DU_VALUES_FILE_PATH = os.path.join(MULTI_UE_DU_BASE_DIR, 'values-du.yaml')
@@ -188,6 +192,8 @@ def delete_all_components(request, namespace):
 
 
 ###SINGLE - CU###
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def values_single_cu(request):
     user_namespace = f"{request.user.username}-namespace"
 
@@ -231,6 +237,8 @@ def values_single_cu(request):
                              'details': str(e)}, status=500)
 
 ###SINGLE - DU###
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def values_single_du(request):
     user_namespace = f"{request.user.username}-namespace"
 
@@ -269,6 +277,8 @@ def values_single_du(request):
                              'details': str(e)}, status=500)
 
 ###SINGLE - UE###
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def values_single_ue(request):
     user_namespace = f"{request.user.username}-namespace"
 
@@ -306,6 +316,8 @@ def values_single_ue(request):
 
 
 ###MULTIGNB - CU###
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def values_multignb_cu(request):
     user_namespace = f"{request.user.username}-namespace"
 
@@ -349,6 +361,8 @@ def values_multignb_cu(request):
                              'details': str(e)}, status=500)
 
 ###GMULTIGNB - DU1###
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def values_multignb_du1(request):
     user_namespace = f"{request.user.username}-namespace"
 
@@ -388,6 +402,8 @@ def values_multignb_du1(request):
                              'details': str(e)}, status=500)
 
 ###MULTIGNB - DU2###
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def values_multignb_du2(request):
     user_namespace = f"{request.user.username}-namespace"
 
@@ -427,6 +443,8 @@ def values_multignb_du2(request):
                              'details': str(e)}, status=500)
 
 ###MULTIGNB - UE1###
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def values_multignb_ue1(request):
     user_namespace = f"{request.user.username}-namespace"
 
@@ -463,6 +481,8 @@ def values_multignb_ue1(request):
                              'details': str(e)}, status=500)
 
 ###MULTIGNB - UE2###
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def values_multignb_ue2(request):
     user_namespace = f"{request.user.username}-namespace"
 
@@ -499,6 +519,8 @@ def values_multignb_ue2(request):
                              'details': str(e)}, status=500)
 
 ###MULTIUE - CU###
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def values_multiue_cu(request):
     user_namespace = f"{request.user.username}-namespace"
 
@@ -542,6 +564,8 @@ def values_multiue_cu(request):
                              'details': str(e)}, status=500)
 
 ###MULTIUE - DU###
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def values_multiue_du(request):
     user_namespace = f"{request.user.username}-namespace"
 
@@ -581,6 +605,8 @@ def values_multiue_du(request):
                              'details': str(e)}, status=500)
 
 ###MULTIUE - UE1###
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def values_multiue_ue1(request):
     user_namespace = f"{request.user.username}-namespace"
 
@@ -617,6 +643,8 @@ def values_multiue_ue1(request):
                              'details': str(e)}, status=500)
 
 ###MULTIUE - UE2###
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def values_multiue_ue2(request):
     user_namespace = f"{request.user.username}-namespace"
 
@@ -654,6 +682,8 @@ def values_multiue_ue2(request):
 
 
 ###SINGLE - CU###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def config_single_cu(request):
     namespace = f"{request.user.username}-namespace"
 
@@ -707,9 +737,11 @@ def config_single_cu(request):
     subprocess.run(upgrade_command)
     os.remove('updated_values.yaml')
 
-    return HttpResponse("Configuration Updated Successfully")
+    return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
 
 ###SINGLE - DU###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def config_single_du(request):
     namespace = f"{request.user.username}-namespace"
 
@@ -757,9 +789,11 @@ def config_single_du(request):
     subprocess.run(upgrade_command)
     os.remove('updated_values.yaml')
 
-    return HttpResponse("Configuration Updated Successfully")
+    return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
 
 ###SINGLE - UE###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def config_single_ue(request):
     namespace = f"{request.user.username}-namespace"
 
@@ -803,10 +837,12 @@ def config_single_ue(request):
     subprocess.run(upgrade_command)
     os.remove('updated_values.yaml')
 
-    return HttpResponse("Configuration Updated Successfully")
+    return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
 
 
 ###MULTIGNB - CU###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def config_multignb_cu(request):
     namespace = f"{request.user.username}-namespace"
 
@@ -860,9 +896,11 @@ def config_multignb_cu(request):
     subprocess.run(upgrade_command)
     os.remove('updated_values.yaml')
 
-    return HttpResponse("Configuration Updated Successfully")
+    return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
 
 ###MULTIGNB - DU1###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def config_multignb_du1(request):
     namespace = f"{request.user.username}-namespace"
 
@@ -910,9 +948,11 @@ def config_multignb_du1(request):
     subprocess.run(upgrade_command)
     os.remove('updated_values.yaml')
 
-    return HttpResponse("Configuration Updated Successfully")
+    return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
 
 ###MULTIGNB - DU2###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def config_multignb_du2(request):
     namespace = f"{request.user.username}-namespace"
 
@@ -960,9 +1000,11 @@ def config_multignb_du2(request):
     subprocess.run(upgrade_command)
     os.remove('updated_values.yaml')
 
-    return HttpResponse("Configuration Updated Successfully")
+    return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
 
 ###MULTIGNB - UE1###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def config_multignb_ue1(request):
     namespace = f"{request.user.username}-namespace"
 
@@ -1006,9 +1048,11 @@ def config_multignb_ue1(request):
     subprocess.run(upgrade_command)
     os.remove('updated_values.yaml')
 
-    return HttpResponse("Configuration Updated Successfully")
+    return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
 
 ###MULTIGNB - UE2###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def config_multignb_ue2(request):
     namespace = f"{request.user.username}-namespace"
 
@@ -1052,10 +1096,12 @@ def config_multignb_ue2(request):
     subprocess.run(upgrade_command)
     os.remove('updated_values.yaml')
 
-    return HttpResponse("Configuration Updated Successfully")
+    return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
 
 
 ###MULTIUE - CU###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def config_multiue_cu(request):
     namespace = f"{request.user.username}-namespace"
 
@@ -1109,9 +1155,11 @@ def config_multiue_cu(request):
     subprocess.run(upgrade_command)
     os.remove('updated_values.yaml')
 
-    return HttpResponse("Configuration Updated Successfully")
+    return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
 
 ###MULTIUE - DU###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def config_multiue_du(request):
     namespace = f"{request.user.username}-namespace"
 
@@ -1159,9 +1207,11 @@ def config_multiue_du(request):
     subprocess.run(upgrade_command)
     os.remove('updated_values.yaml')
 
-    return HttpResponse("Configuration Updated Successfully")
+    return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
 
 ###MULTIUE - UE1###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def config_multiue_ue1(request):
     namespace = f"{request.user.username}-namespace"
 
@@ -1205,9 +1255,11 @@ def config_multiue_ue1(request):
     subprocess.run(upgrade_command)
     os.remove('updated_values.yaml')
 
-    return HttpResponse("Configuration Updated Successfully")
+    return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
 
 ###MULTIUE - UE2###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def config_multiue_ue2(request):
     namespace = f"{request.user.username}-namespace"
 
@@ -1251,10 +1303,12 @@ def config_multiue_ue2(request):
     subprocess.run(upgrade_command)
     os.remove('updated_values.yaml')
 
-    return HttpResponse("Configuration Updated Successfully")
+    return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
 
 
 ###SINGLE CU - START###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def start_single_cu(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1264,11 +1318,13 @@ def start_single_cu(request):
             "kubectl", "scale", "deployment", "single-cu", "--replicas=1",
             "--namespace=" + namespace
         ])
-        return HttpResponse("CU started")
+        return Response({"message": "CU successfully started"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###SINGLE DU - START###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def start_single_du(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1278,11 +1334,13 @@ def start_single_du(request):
             "kubectl", "scale", "deployment", "single-du", "--replicas=1",
             "--namespace=" + namespace
         ])
-        return HttpResponse("DU started")
+        return Response({"message": "DU successfully started"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###SINGLE UE - START###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def start_single_ue(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1292,11 +1350,13 @@ def start_single_ue(request):
             "kubectl", "scale", "deployment", "single-ue", "--replicas=1",
             "--namespace=" + namespace
         ])
-        return HttpResponse("UE started")
+        return Response({"message": "UE successfully started"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###MULTIGNB CU - START###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def start_multignb_cu(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1306,11 +1366,13 @@ def start_multignb_cu(request):
             "kubectl", "scale", "deployment", "multignb-cu", "--replicas=1",
             "--namespace=" + namespace
         ])
-        return HttpResponse("CU started")
+        return Response({"message": "CU successfully started"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###MULTIGNB DU1 - START###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def start_multignb_du1(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1320,11 +1382,13 @@ def start_multignb_du1(request):
             "kubectl", "scale", "deployment", "multignb-du1", "--replicas=1",
             "--namespace=" + namespace
         ])
-        return HttpResponse("DU1 started")
+        return Response({"message": "DU successfully started"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###MULTIGNB DU2 - START###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def start_multignb_du2(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1334,11 +1398,13 @@ def start_multignb_du2(request):
             "kubectl", "scale", "deployment", "multignb-du2", "--replicas=1",
             "--namespace=" + namespace
         ])
-        return HttpResponse("DU2 started")
+        return Response({"message": "DU successfully started"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###MULTIGNB UE1 - START###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def start_multignb_ue1(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1348,11 +1414,13 @@ def start_multignb_ue1(request):
             "kubectl", "scale", "deployment", "multignb-ue1", "--replicas=1",
             "--namespace=" + namespace
         ])
-        return HttpResponse("UE started")
+        return Response({"message": "UE successfully started"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###MULTIGNB UE2 - START###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def start_multignb_ue2(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1362,11 +1430,13 @@ def start_multignb_ue2(request):
             "kubectl", "scale", "deployment", "multignb-ue2", "--replicas=1",
             "--namespace=" + namespace
         ])
-        return HttpResponse("UE started")
+        return Response({"message": "UE successfully started"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###MULTIUE CU - START###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def start_multiue_cu(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1376,11 +1446,13 @@ def start_multiue_cu(request):
             "kubectl", "scale", "deployment", "multiue-cu", "--replicas=1",
             "--namespace=" + namespace
         ])
-        return HttpResponse("CU started")
+        return Response({"message": "CU successfully started"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###MULTIUE DU - START###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def start_multiue_du(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1395,6 +1467,8 @@ def start_multiue_du(request):
         return HttpResponse(f"An error occurred: {e}")
 
 ###MULTIUE UE1 - START###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def start_multiue_ue1(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1404,11 +1478,13 @@ def start_multiue_ue1(request):
             "kubectl", "scale", "deployment", "multiue-ue1", "--replicas=1",
             "--namespace=" + namespace
         ])
-        return HttpResponse("UE1 started")
+        return Response({"message": "UE successfully started"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###MULTIUE UE2 - START###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def start_multiue_ue2(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1418,9 +1494,9 @@ def start_multiue_ue2(request):
             "kubectl", "scale", "deployment", "multiue-ue2", "--replicas=1",
             "--namespace=" + namespace
         ])
-        return HttpResponse("UE2 started")
+        return Response({"message": "UE successfully started"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ###SINGLE CU - STOP###

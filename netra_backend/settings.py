@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'corsheaders',
 ]
 
 ##################################################################################
@@ -98,7 +99,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #///////////////////////////////
+    #///////#BATAS DEFAULT#/////////
+    #///////////////////////////////
+    'corsheaders.middleware.CorsMiddleware',
+    'apps.middleware.OneSessionPerUserMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True       #///////#CONFIGURED#///////
 
 ROOT_URLCONF = 'netra_backend.urls'
 

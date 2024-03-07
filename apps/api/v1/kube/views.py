@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 import json
 from django.http import JsonResponse
+import subprocess
 
 def get_network_status_annotations():
     # Load your Kubernetes configuration, either in-cluster or from a local Kubeconfig file
