@@ -23,4 +23,5 @@ urlpatterns = [
     path('api/v1/token/', include('apps.api.v1.token.urls')),
     path('api/v1/kube/', include('apps.api.v1.kube.urls')),
     path('api/v1/oai/', include('apps.api.v1.oai.urls')),
+    path('api/v1/shark/', include('apps.api.v1.shark.urls')),
 ]

@@ -1500,6 +1500,8 @@ def start_multiue_ue2(request):
 
 
 ###SINGLE CU - STOP###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def stop_single_cu(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1514,6 +1516,8 @@ def stop_single_cu(request):
         return HttpResponse(f"An error occurred: {e}")
 
 ###SINGLE DU - STOP###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def stop_single_du(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1528,6 +1532,8 @@ def stop_single_du(request):
         return HttpResponse(f"An error occurred: {e}")
 
 ###SINGLE UE - STOP###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def stop_single_ue(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1542,6 +1548,8 @@ def stop_single_ue(request):
         return HttpResponse(f"An error occurred: {e}")
 
 ###MULTIGNB CU - STOP###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def stop_multignb_cu(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1556,6 +1564,8 @@ def stop_multignb_cu(request):
         return HttpResponse(f"An error occurred: {e}")
 
 ###MULTIGNB DU1 - STOP###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def stop_multignb_du1(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1570,6 +1580,8 @@ def stop_multignb_du1(request):
         return HttpResponse(f"An error occurred: {e}")
 
 ###MULTIGNB DU2 - STOP###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def stop_multignb_du2(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1584,6 +1596,8 @@ def stop_multignb_du2(request):
         return HttpResponse(f"An error occurred: {e}")
 
 ###MULTIGNB UE1 - STOP###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def stop_multignb_ue1(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1598,6 +1612,8 @@ def stop_multignb_ue1(request):
         return HttpResponse(f"An error occurred: {e}")
 
 ###MULTIGNB UE2 - STOP###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def stop_multignb_ue2(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1612,6 +1628,8 @@ def stop_multignb_ue2(request):
         return HttpResponse(f"An error occurred: {e}")
 
 ###MULTIUE CU - STOP###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def stop_multiue_cu(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1626,6 +1644,8 @@ def stop_multiue_cu(request):
         return HttpResponse(f"An error occurred: {e}")
 
 ###MULTIUE DU - STOP###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def stop_multiue_du(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1640,6 +1660,8 @@ def stop_multiue_du(request):
         return HttpResponse(f"An error occurred: {e}")
 
 ###MULTIUE UE1 - STOP###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def stop_multiue_ue1(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1654,6 +1676,8 @@ def stop_multiue_ue1(request):
         return HttpResponse(f"An error occurred: {e}")
 
 ###MULTIUE UE2 - STOP###
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def stop_multiue_ue2(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
@@ -1668,3 +1692,27 @@ def stop_multiue_ue2(request):
         return HttpResponse(f"An error occurred: {e}")
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_helm_deployments(request):
+    # Construct the namespace from the username
+    namespace = f"{request.user.username}-namespace"
+
+    try:
+        result = subprocess.run(
+            ["helm", "list", "--namespace", namespace, "-q"],
+            capture_output=True,
+            text=True
+        )
+
+        # Split the output by newlines to get a list of deployments
+        deployments = result.stdout.strip().split('\n')
+
+        # Filter out any empty strings in case there are extra newlines
+        deployments = [deployment for deployment in deployments if deployment]
+
+        return Response({'deployments': deployments})
+
+    except subprocess.CalledProcessError as e:
+        # If there's an error executing the command, return the error
+        return Response({'error': str(e)}, status=400)
