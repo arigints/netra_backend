@@ -19,19 +19,15 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
         UserProfile.objects.create(user=instance)
     instance.profile.save()
 
-# Signal for user session key
+
+# Signal for user session management
 from django.contrib.auth.signals import user_logged_in
 from django.dispatch import receiver
-from django.contrib.sessions.models import Session
 
 @receiver(user_logged_in)
-def on_user_logged_in(sender, request, user, **kwargs):
-    # Delete previous sessions
-    if hasattr(user, 'userprofile'):
-        session_key = user.userprofile.session_key
-        if session_key and Session.objects.filter(session_key=session_key).exists():
-            Session.objects.get(session_key=session_key).delete()
-    
-    # Update user's session key
-    user.userprofile.session_key = request.session.session_key
-    user.userprofile.save()
+def update_user_session(sender, request, user, **kwargs):
+    # Get or create the user profile
+    profile, _ = UserProfile.objects.get_or_create(user=user)
+    # Update the session key in the profile
+    profile.session_key = request.session.session_key
+    profile.save()

@@ -1,4 +1,5 @@
 from django.contrib.auth import logout
+from .models import UserProfile
 
 class OneSessionPerUserMiddleware:
     def __init__(self, get_response):
@@ -6,9 +7,9 @@ class OneSessionPerUserMiddleware:
 
     def __call__(self, request):
         if request.user.is_authenticated:
-            stored_session_key = request.user.userprofile.session_key
-            if stored_session_key and stored_session_key != request.session.session_key:
+            profile = UserProfile.objects.get(user=request.user)
+            # If the session keys do not match, log out the user
+            if profile.session_key != request.session.session_key:
                 logout(request)
-        
         response = self.get_response(request)
         return response
