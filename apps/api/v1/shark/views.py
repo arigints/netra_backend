@@ -3,6 +3,9 @@ from django.http import JsonResponse
 import pytz
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+import subprocess
+import json
+from rest_framework.response import Response
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -48,3 +51,25 @@ def capture_packets(request):
             continue
 
     return JsonResponse({'packets': packets_summary}, safe=False)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def capture_and_return_packets(request, pod_name):
+    namespace = f"{request.user.username}-namespace"
+    try:
+        cmd = f"kubectl sniff -n {namespace} {pod_name} -o - | tshark -r - -c 100 -Y '(dhcp or tcp or udp)' -T json"
+        result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+        if result.returncode != 0 or not result.stdout.strip():
+            error_message = f"Command failed or produced no output. Return code: {result.returncode}. STDERR: {result.stderr}"
+            return Response({"error": error_message}, status=400)
+        
+        packets = json.loads(result.stdout)
+        return Response(packets)
+    
+    except json.JSONDecodeError as e:
+        return Response({"error": f"JSON decoding error: {str(e)}"}, status=500)
+    except Exception as e:
+        return Response({"error": f"Unexpected error: {str(e)}"}, status=500)
+
+
