@@ -4,10 +4,10 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView,
     TokenBlacklistView,
 )
-from .views import CustomTokenObtainPairView
+from .views import MyTokenObtainPairView
 
 urlpatterns = [
-    path('access/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('access/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),
