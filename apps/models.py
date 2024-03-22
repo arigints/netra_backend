@@ -20,6 +20,7 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
     instance.profile.save()
 
 
+
 # Signal for user session management
 from django.contrib.auth.signals import user_logged_in
 from django.dispatch import receiver

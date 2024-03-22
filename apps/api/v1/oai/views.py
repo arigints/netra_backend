@@ -195,7 +195,7 @@ def delete_all_components(request, namespace):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def values_single_cu(request):
-    user_namespace = f"{request.user.username}-namespace"
+    user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
     command = ["helm", "get", "values", "single-cu", "--namespace", user_namespace]
@@ -240,7 +240,7 @@ def values_single_cu(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def values_single_du(request):
-    user_namespace = f"{request.user.username}-namespace"
+    user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
     command = ["helm", "get", "values", "single-du", "--namespace", user_namespace]
@@ -280,7 +280,7 @@ def values_single_du(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def values_single_ue(request):
-    user_namespace = f"{request.user.username}-namespace"
+    user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
     command = ["helm", "get", "values", "single-ue", "--namespace", user_namespace]
@@ -319,7 +319,7 @@ def values_single_ue(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def values_multignb_cu(request):
-    user_namespace = f"{request.user.username}-namespace"
+    user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
     command = ["helm", "get", "values", "multignb-cu", "--namespace", user_namespace]
@@ -364,7 +364,7 @@ def values_multignb_cu(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def values_multignb_du1(request):
-    user_namespace = f"{request.user.username}-namespace"
+    user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
     command = ["helm", "get", "values", "multignb-du1", "--namespace", user_namespace]
@@ -405,7 +405,7 @@ def values_multignb_du1(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def values_multignb_du2(request):
-    user_namespace = f"{request.user.username}-namespace"
+    user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
     command = ["helm", "get", "values", "multignb-du2", "--namespace", user_namespace]
@@ -446,7 +446,7 @@ def values_multignb_du2(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def values_multignb_ue1(request):
-    user_namespace = f"{request.user.username}-namespace"
+    user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
     command = ["helm", "get", "values", "multignb-ue1", "--namespace", user_namespace]
@@ -484,7 +484,7 @@ def values_multignb_ue1(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def values_multignb_ue2(request):
-    user_namespace = f"{request.user.username}-namespace"
+    user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
     command = ["helm", "get", "values", "multignb-ue2", "--namespace", user_namespace]
@@ -522,7 +522,7 @@ def values_multignb_ue2(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def values_multiue_cu(request):
-    user_namespace = f"{request.user.username}-namespace"
+    user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
     command = ["helm", "get", "values", "multiue-cu", "--namespace", user_namespace]
@@ -567,7 +567,7 @@ def values_multiue_cu(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def values_multiue_du(request):
-    user_namespace = f"{request.user.username}-namespace"
+    user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
     command = ["helm", "get", "values", "multiue-du", "--namespace", user_namespace]
@@ -608,7 +608,7 @@ def values_multiue_du(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def values_multiue_ue1(request):
-    user_namespace = f"{request.user.username}-namespace"
+    user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
     command = ["helm", "get", "values", "multiue-ue1", "--namespace", user_namespace]
@@ -646,7 +646,7 @@ def values_multiue_ue1(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def values_multiue_ue2(request):
-    user_namespace = f"{request.user.username}-namespace"
+    user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
     command = ["helm", "get", "values", "multiue-ue2", "--namespace", user_namespace]
@@ -685,7 +685,7 @@ def values_multiue_ue2(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def config_single_cu(request):
-    namespace = f"{request.user.username}-namespace"
+    namespace = f"{request.user.username}"
 
     get_values_command = ["helm", "get", "values", "single-cu", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
@@ -743,7 +743,7 @@ def config_single_cu(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def config_single_du(request):
-    namespace = f"{request.user.username}-namespace"
+    namespace = f"{request.user.username}"
 
     get_values_command = ["helm", "get", "values", "single-du", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
@@ -795,7 +795,7 @@ def config_single_du(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def config_single_ue(request):
-    namespace = f"{request.user.username}-namespace"
+    namespace = f"{request.user.username}"
 
     get_values_command = ["helm", "get", "values", "single-ue", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
@@ -844,7 +844,7 @@ def config_single_ue(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def config_multignb_cu(request):
-    namespace = f"{request.user.username}-namespace"
+    namespace = f"{request.user.username}"
 
     get_values_command = ["helm", "get", "values", "multignb-cu", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
@@ -902,7 +902,7 @@ def config_multignb_cu(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def config_multignb_du1(request):
-    namespace = f"{request.user.username}-namespace"
+    namespace = f"{request.user.username}"
 
     get_values_command = ["helm", "get", "values", "multignb-du1", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
@@ -954,7 +954,7 @@ def config_multignb_du1(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def config_multignb_du2(request):
-    namespace = f"{request.user.username}-namespace"
+    namespace = f"{request.user.username}"
 
     get_values_command = ["helm", "get", "values", "multignb-du2", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
@@ -1006,7 +1006,7 @@ def config_multignb_du2(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def config_multignb_ue1(request):
-    namespace = f"{request.user.username}-namespace"
+    namespace = f"{request.user.username}"
 
     get_values_command = ["helm", "get", "values", "multignb-ue1", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
@@ -1054,7 +1054,7 @@ def config_multignb_ue1(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def config_multignb_ue2(request):
-    namespace = f"{request.user.username}-namespace"
+    namespace = f"{request.user.username}"
 
     get_values_command = ["helm", "get", "values", "multignb-ue2", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
@@ -1103,7 +1103,7 @@ def config_multignb_ue2(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def config_multiue_cu(request):
-    namespace = f"{request.user.username}-namespace"
+    namespace = f"{request.user.username}"
 
     get_values_command = ["helm", "get", "values", "multiue-cu", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
@@ -1161,7 +1161,7 @@ def config_multiue_cu(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def config_multiue_du(request):
-    namespace = f"{request.user.username}-namespace"
+    namespace = f"{request.user.username}"
 
     get_values_command = ["helm", "get", "values", "multiue-du", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
@@ -1213,7 +1213,7 @@ def config_multiue_du(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def config_multiue_ue1(request):
-    namespace = f"{request.user.username}-namespace"
+    namespace = f"{request.user.username}"
 
     get_values_command = ["helm", "get", "values", "multiue-ue1", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
@@ -1261,7 +1261,7 @@ def config_multiue_ue1(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def config_multiue_ue2(request):
-    namespace = f"{request.user.username}-namespace"
+    namespace = f"{request.user.username}"
 
     get_values_command = ["helm", "get", "values", "multiue-ue2", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
@@ -1696,7 +1696,7 @@ def stop_multiue_ue2(request):
 @permission_classes([IsAuthenticated])
 def get_user_helm_deployments(request):
     # Construct the namespace from the username
-    namespace = f"{request.user.username}-namespace"
+    namespace = f"{request.user.username}"
 
     try:
         result = subprocess.run(

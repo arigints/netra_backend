@@ -55,7 +55,7 @@ def modified_create_user(request):
         for i in range(highest_number + 1, highest_number + user_count + 1):
             username = f'user{i}'
             password = f'user{i}'
-            namespace = f'user{i}-namespace'
+            namespace = f'user{i}'
             role_name = f'user{i}-role'
             role_binding_name = f'user{i}-rolebinding'
 
@@ -120,7 +120,7 @@ def delete_user(request, pk):
         username = user.username
 
         # Assume the namespace, role, and rolebinding follow a specific naming convention
-        namespace = f"{username}-namespace"
+        namespace = f"{username}"
         role_name = f"{username}-role"
         role_binding_name = f"{username}-rolebinding"
 

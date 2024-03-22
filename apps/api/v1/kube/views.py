@@ -47,7 +47,7 @@ def get_user_pods(request):
         v1 = client.CoreV1Api()
 
         # Derive namespace from the current user's username
-        user_namespace = f"{request.user.username}-namespace"
+        user_namespace = f"{request.user.username}"
 
         # List pods in the specific namespace
         pods_list = v1.list_namespaced_pod(namespace=user_namespace)
@@ -86,7 +86,7 @@ def get_user_deployments(request):
     config.load_kube_config()
     apps_v1 = client.AppsV1Api()
 
-    namespace = f"{request.user.username}-namespace"
+    namespace = f"{request.user.username}"
 
     try:
         deployments = apps_v1.list_namespaced_deployment(namespace)
@@ -114,7 +114,7 @@ def get_user_deployments(request):
 def restart_single_cu(request):
     try:
         # Derive the namespace from the current user's username
-        namespace = f"{request.user.username}-namespace"
+        namespace = f"{request.user.username}"
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", "single-cu", "--namespace", namespace],
@@ -132,7 +132,7 @@ def restart_single_cu(request):
 def restart_single_du(request):
     try:
         # Derive the namespace from the current user's username
-        namespace = f"{request.user.username}-namespace"
+        namespace = f"{request.user.username}"
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", "single-du", "--namespace", namespace],
@@ -150,7 +150,7 @@ def restart_single_du(request):
 def restart_single_ue(request):
     try:
         # Derive the namespace from the current user's username
-        namespace = f"{request.user.username}-namespace"
+        namespace = f"{request.user.username}"
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", "single-ue", "--namespace", namespace],
@@ -168,7 +168,7 @@ def restart_single_ue(request):
 def restart_multignb_cu(request):
     try:
         # Derive the namespace from the current user's username
-        namespace = f"{request.user.username}-namespace"
+        namespace = f"{request.user.username}"
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", "multignb-cu", "--namespace", namespace],
@@ -186,7 +186,7 @@ def restart_multignb_cu(request):
 def restart_multignb_du1(request):
     try:
         # Derive the namespace from the current user's username
-        namespace = f"{request.user.username}-namespace"
+        namespace = f"{request.user.username}"
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", "multignb-du1", "--namespace", namespace],
@@ -204,7 +204,7 @@ def restart_multignb_du1(request):
 def restart_multignb_du2(request):
     try:
         # Derive the namespace from the current user's username
-        namespace = f"{request.user.username}-namespace"
+        namespace = f"{request.user.username}"
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", "multignb-du2", "--namespace", namespace],
@@ -222,7 +222,7 @@ def restart_multignb_du2(request):
 def restart_multignb_ue1(request):
     try:
         # Derive the namespace from the current user's username
-        namespace = f"{request.user.username}-namespace"
+        namespace = f"{request.user.username}"
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", "multignb-ue1", "--namespace", namespace],
@@ -240,7 +240,7 @@ def restart_multignb_ue1(request):
 def restart_multignb_ue2(request):
     try:
         # Derive the namespace from the current user's username
-        namespace = f"{request.user.username}-namespace"
+        namespace = f"{request.user.username}"
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", "multignb-ue2", "--namespace", namespace],
@@ -258,7 +258,7 @@ def restart_multignb_ue2(request):
 def restart_multiue_cu(request):
     try:
         # Derive the namespace from the current user's username
-        namespace = f"{request.user.username}-namespace"
+        namespace = f"{request.user.username}"
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", "multiue-cu", "--namespace", namespace],
@@ -276,7 +276,7 @@ def restart_multiue_cu(request):
 def restart_multiue_du(request):
     try:
         # Derive the namespace from the current user's username
-        namespace = f"{request.user.username}-namespace"
+        namespace = f"{request.user.username}"
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", "multiue-du", "--namespace", namespace],
@@ -294,7 +294,7 @@ def restart_multiue_du(request):
 def restart_multiue_ue1(request):
     try:
         # Derive the namespace from the current user's username
-        namespace = f"{request.user.username}-namespace"
+        namespace = f"{request.user.username}"
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", "multiue-ue1", "--namespace", namespace],
@@ -312,7 +312,7 @@ def restart_multiue_ue1(request):
 def restart_multiue_ue2(request):
     try:
         # Derive the namespace from the current user's username
-        namespace = f"{request.user.username}-namespace"
+        namespace = f"{request.user.username}"
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", "multiue-ue2", "--namespace", namespace],
