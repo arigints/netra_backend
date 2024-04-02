@@ -18,112 +18,159 @@ SINGLE_CU_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-e2e/oai-cu/')
 SINGLE_DU_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-e2e/oai-du/')  
 SINGLE_UE_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-e2e/oai-nr-ue/')  
 
-MULTI_GNB_CU_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-gnb/oai-cu')  
-MULTI_GNB_DU1_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-gnb/oai-du-1')  
-MULTI_GNB_DU2_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-gnb/oai-du-2')  
-MULTI_GNB_UE1_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-gnb/oai-nr-ue-1') 
-MULTI_GNB_UE2_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-gnb/oai-nr-ue-2')  
+MULTI_GNB_CU_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-gnb/oai-cu/')  
+MULTI_GNB_DU1_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-gnb/oai-du-1/')  
+MULTI_GNB_DU2_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-gnb/oai-du-2/')  
+MULTI_GNB_UE1_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-gnb/oai-nr-ue-1/') 
+MULTI_GNB_UE2_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-gnb/oai-nr-ue-2/')  
 
-MULTI_UE_CU_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-ue/oai-cu')  
-MULTI_UE_DU_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-ue/oai-du')  
-MULTI_UE_UE1_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-ue/oai-nr-ue-1')  
-MULTI_UE_UE2_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-ue/oai-nr-ue-2') 
+MULTI_UE_CU_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-ue/oai-cu/')  
+MULTI_UE_DU_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-ue/oai-du/')  
+MULTI_UE_UE1_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-ue/oai-nr-ue-1/')  
+MULTI_UE_UE2_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-ue/oai-nr-ue-2/') 
 
-SINGLE_CU_VALUES_FILE_PATH = os.path.join(SINGLE_CU_BASE_DIR, 'values-cu.yaml')
-SINGLE_DU_VALUES_FILE_PATH = os.path.join(SINGLE_DU_BASE_DIR, 'values-du.yaml')
-SINGLE_UE_VALUES_FILE_PATH = os.path.join(SINGLE_UE_BASE_DIR, 'values-ue.yaml')
+SINGLE_CU_VALUES_FILE_PATH = os.path.join(SINGLE_CU_BASE_DIR, 'values.yaml')
+SINGLE_DU_VALUES_FILE_PATH = os.path.join(SINGLE_DU_BASE_DIR, 'values.yaml')
+SINGLE_UE_VALUES_FILE_PATH = os.path.join(SINGLE_UE_BASE_DIR, 'values.yaml')
 
-MULTI_GNB_CU_VALUES_FILE_PATH = os.path.join(MULTI_GNB_CU_BASE_DIR, 'values-cu.yaml')
-MULTI_GNB_DU1_VALUES_FILE_PATH = os.path.join(MULTI_GNB_DU1_BASE_DIR, 'values-du.yaml')
-MULTI_GNB_DU2_VALUES_FILE_PATH = os.path.join(MULTI_GNB_DU2_BASE_DIR, 'values-du.yaml')
-MULTI_GNB_UE1_VALUES_FILE_PATH = os.path.join(MULTI_GNB_UE1_BASE_DIR, 'values-ue.yaml')
-MULTI_GNB_UE2_VALUES_FILE_PATH = os.path.join(MULTI_GNB_UE2_BASE_DIR, 'values-ue.yaml')
+MULTI_GNB_CU_VALUES_FILE_PATH = os.path.join(MULTI_GNB_CU_BASE_DIR, 'values.yaml')
+MULTI_GNB_DU1_VALUES_FILE_PATH = os.path.join(MULTI_GNB_DU1_BASE_DIR, 'values.yaml')
+MULTI_GNB_DU2_VALUES_FILE_PATH = os.path.join(MULTI_GNB_DU2_BASE_DIR, 'values.yaml')
+MULTI_GNB_UE1_VALUES_FILE_PATH = os.path.join(MULTI_GNB_UE1_BASE_DIR, 'values.yaml')
+MULTI_GNB_UE2_VALUES_FILE_PATH = os.path.join(MULTI_GNB_UE2_BASE_DIR, 'values.yaml')
 
-MULTI_UE_CU_VALUES_FILE_PATH = os.path.join(MULTI_UE_CU_BASE_DIR, 'values-cu.yaml')
-MULTI_UE_DU_VALUES_FILE_PATH = os.path.join(MULTI_UE_DU_BASE_DIR, 'values-du.yaml')
-MULTI_UE_UE1_VALUES_FILE_PATH = os.path.join(MULTI_UE_UE1_BASE_DIR, 'values-ue.yaml')
-MULTI_UE_UE2_VALUES_FILE_PATH = os.path.join(MULTI_UE_UE2_BASE_DIR, 'values-ue.yaml')
+MULTI_UE_CU_VALUES_FILE_PATH = os.path.join(MULTI_UE_CU_BASE_DIR, 'values.yaml')
+MULTI_UE_DU_VALUES_FILE_PATH = os.path.join(MULTI_UE_DU_BASE_DIR, 'values.yaml')
+MULTI_UE_UE1_VALUES_FILE_PATH = os.path.join(MULTI_UE_UE1_BASE_DIR, 'values.yaml')
+MULTI_UE_UE2_VALUES_FILE_PATH = os.path.join(MULTI_UE_UE2_BASE_DIR, 'values.yaml')
+
+SINGLE_CU_CHART_FILE_PATH = os.path.join(SINGLE_CU_BASE_DIR, 'Chart.yaml')
+SINGLE_DU_CHART_FILE_PATH = os.path.join(SINGLE_DU_BASE_DIR, 'Chart.yaml')
+SINGLE_UE_CHART_FILE_PATH = os.path.join(SINGLE_UE_BASE_DIR, 'Chart.yaml')
+
+MULTI_GNB_CU_CHART_FILE_PATH = os.path.join(MULTI_GNB_CU_BASE_DIR, 'Chart.yaml')
+MULTI_GNB_DU1_CHART_FILE_PATH = os.path.join(MULTI_GNB_DU1_BASE_DIR, 'Chart.yaml')
+MULTI_GNB_DU2_CHART_FILE_PATH = os.path.join(MULTI_GNB_DU2_BASE_DIR, 'Chart.yaml')
+MULTI_GNB_UE1_CHART_FILE_PATH = os.path.join(MULTI_GNB_UE1_BASE_DIR, 'Chart.yaml')
+MULTI_GNB_UE2_CHART_FILE_PATH = os.path.join(MULTI_GNB_UE2_BASE_DIR, 'Chart.yaml')
+
+MULTI_UE_CU_CHART_FILE_PATH = os.path.join(MULTI_UE_CU_BASE_DIR, 'Chart.yaml')
+MULTI_UE_DU_CHART_FILE_PATH = os.path.join(MULTI_UE_DU_BASE_DIR, 'Chart.yaml')
+MULTI_UE_UE1_CHART_FILE_PATH = os.path.join(MULTI_UE_UE1_BASE_DIR, 'Chart.yaml')
+MULTI_UE_UE2_CHART_FILE_PATH = os.path.join(MULTI_UE_UE2_BASE_DIR, 'Chart.yaml')
+
+def update_chart_name(chart_file_path, username):
+    with open(chart_file_path, 'r') as file:
+        chart_yaml = yaml.safe_load(file)
+
+    # Append the username to the existing chart name with a hyphen
+    chart_yaml['name'] = f"{chart_yaml['name']}-{username}"
+
+    with open(chart_file_path, 'w') as file:
+        yaml.dump(chart_yaml, file)
+
+
+def revert_chart_name(chart_file_path, original_name):
+    with open(chart_file_path, 'r') as file:
+        chart_yaml = yaml.safe_load(file)
+
+    chart_yaml['name'] = original_name
+
+    with open(chart_file_path, 'w') as file:
+        yaml.dump(chart_yaml, file)
+
 
 ###CREATE ALL 5G COMPONENT NEEDED BY THE USER###
 def create_all_components(request, namespace):
     try:        
+        original_names = {}
+
+        # Store original names and update with new names
+        for chart_file_path in [SINGLE_CU_CHART_FILE_PATH, SINGLE_DU_CHART_FILE_PATH, SINGLE_UE_CHART_FILE_PATH, MULTI_GNB_CU_CHART_FILE_PATH, MULTI_GNB_DU1_CHART_FILE_PATH, MULTI_GNB_DU2_CHART_FILE_PATH, MULTI_GNB_UE1_CHART_FILE_PATH, MULTI_GNB_UE2_CHART_FILE_PATH, MULTI_UE_CU_CHART_FILE_PATH, MULTI_UE_DU_CHART_FILE_PATH, MULTI_UE_UE1_CHART_FILE_PATH, MULTI_UE_UE2_CHART_FILE_PATH]:
+            with open(chart_file_path, 'r') as file:
+                chart_yaml = yaml.safe_load(file)
+                original_names[chart_file_path] = chart_yaml['name']
+            update_chart_name(chart_file_path, namespace)
+
         #SINGLE - CU
         subprocess.run([
-            "helm", "install", "single-cu", "--values", "values-cu.yaml",
+            "helm", "install", "single-cu", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=SINGLE_CU_BASE_DIR)
 
         #SINGLE - DU
         subprocess.run([
-            "helm", "install", "single-du", "--values", "values-du.yaml",
+            "helm", "install", "single-du", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=SINGLE_DU_BASE_DIR)
 
         #SINGLE - UE
         subprocess.run([
-            "helm", "install", "single-ue", "--values", "values-ue.yaml",
+            "helm", "install", "single-ue", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=SINGLE_UE_BASE_DIR)
 
         #MULTI-GNB - CU
         subprocess.run([
-            "helm", "install", "multignb-cu", "--values", "values-cu.yaml",
+            "helm", "install", "multignb-cu", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=MULTI_GNB_CU_BASE_DIR)
 
         #MULTI-GNB - DU1
         subprocess.run([
-            "helm", "install", "multignb-du1", "--values", "values-du.yaml",
+            "helm", "install", "multignb-du1", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=MULTI_GNB_DU1_BASE_DIR)
 
         #MULTI-GNB - DU2
         subprocess.run([
-            "helm", "install", "multignb-du2", "--values", "values-du.yaml",
+            "helm", "install", "multignb-du2", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=MULTI_GNB_DU2_BASE_DIR)
 
         #MULTI-GNB - UE1
         subprocess.run([
-            "helm", "install", "multignb-ue1", "--values", "values-ue.yaml",
+            "helm", "install", "multignb-ue1", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=MULTI_GNB_UE1_BASE_DIR)
 
         #MULTI-GNB - UE2
         subprocess.run([
-            "helm", "install", "multignb-ue2", "--values", "values-ue.yaml",
+            "helm", "install", "multignb-ue2", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=MULTI_GNB_UE2_BASE_DIR)
 
         #MULTI-UE - CU
         subprocess.run([
-            "helm", "install", "multiue-cu", "--values", "values-cu.yaml",
+            "helm", "install", "multiue-cu", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=MULTI_UE_CU_BASE_DIR)
 
         #MULTI-UE - DU
         subprocess.run([
-            "helm", "install", "multiue-du", "--values", "values-du.yaml",
+            "helm", "install", "multiue-du", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=MULTI_UE_DU_BASE_DIR)
 
         #MULTI-UE - UE1
         subprocess.run([
-            "helm", "install", "multiue-ue1", "--values", "values-ue.yaml",
+            "helm", "install", "multiue-ue1", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=MULTI_UE_UE1_BASE_DIR)
 
         #MULTI-UE - UE2
         subprocess.run([
-            "helm", "install", "multiue-ue2", "--values", "values-ue.yaml",
+            "helm", "install", "multiue-ue2", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=MULTI_UE_UE2_BASE_DIR)
 
         return "Success"
 
-    except subprocess.CalledProcessError as e:
-        # Handle errors in the subprocesses
-        return f"An error occurred: {e}"
+    finally:
+        # Revert the names back to original
+        for chart_file_path, original_name in original_names.items():
+            revert_chart_name(chart_file_path, original_name)
+
 
 
 ###DELETE ALL 5G COMPONENT ALONGSIDE USER ACCOUNT DELETION###
@@ -159,9 +206,14 @@ def delete_all_components(request, namespace):
             "helm", "delete", "multignb-du2", "--namespace", namespace
         ])
 
-        #MULTI-GNB - UE
+        #MULTI-GNB - UE1
         subprocess.run([
-            "helm", "delete", "multignb-ue", "--namespace", namespace
+            "helm", "delete", "multignb-ue1", "--namespace", namespace
+        ])
+
+        #MULTI-GNB - UE2
+        subprocess.run([
+            "helm", "delete", "multignb-ue2", "--namespace", namespace
         ])
 
         #MULTI-UE - CU

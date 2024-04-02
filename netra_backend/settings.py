@@ -145,7 +145,7 @@ DATABASES = {
         'NAME': 'netrabase',
         'USER': 'postgres',
         'PASSWORD': 'opennetra',
-        'HOST': '127.0.0.1',
+        'HOST': '10.30.1.221',
         'PORT': 5432
     }
 }
@@ -175,7 +175,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Jakarta'
 
 USE_I18N = True
 

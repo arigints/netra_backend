@@ -119,32 +119,23 @@ def delete_user(request, pk):
         user = User.objects.get(pk=pk)
         username = user.username
 
-        # Assume the namespace, role, and rolebinding follow a specific naming convention
+        # Derive namespace, role, and rolebinding names
         namespace = f"{username}"
         role_name = f"{username}-role"
         role_binding_name = f"{username}-rolebinding"
 
-        try:
-            # Delete the rolebinding
-            subprocess.run(["kubectl", "delete", "rolebinding", role_binding_name, "--namespace", namespace])
-        except ApiException as e:
-            return Response({'error': f'Failed to delete rolebinding: {e}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        try:
-            # Delete the role
-            subprocess.run(["kubectl", "delete", "role", role_name, "--namespace", namespace])
-        except ApiException as e:
-            return Response({'error': f'Failed to delete role: {e}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        try:
-            # Delete the namespace
-            subprocess.run(["kubectl", "delete", "namespace", namespace])
-        except ApiException as e:
-            return Response({'error': f'Failed to delete namespace: {e}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+        # First, delete all components for the user
         response = delete_all_components(request, namespace)
         if response != "Success":
             return HttpResponse(response)
+
+        # Then, proceed with deleting the Kubernetes resources
+        try:
+            subprocess.run(["kubectl", "delete", "rolebinding", role_binding_name, "--namespace", namespace], check=True)
+            subprocess.run(["kubectl", "delete", "role", role_name, "--namespace", namespace], check=True)
+            subprocess.run(["kubectl", "delete", "namespace", namespace], check=True)
+        except subprocess.CalledProcessError as e:
+            return Response({'error': f'Failed to delete Kubernetes resources: {e}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Delete the user after cleaning up associated resources
         user.delete()
@@ -152,6 +143,7 @@ def delete_user(request, pk):
         return Response({'message': 'User and associated Kubernetes resources deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
     except User.DoesNotExist:
         return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
     
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
