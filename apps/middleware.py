@@ -29,7 +29,7 @@ class SingleSessionMiddleware(MiddlewareMixin):
                             logout(request)
                             return JsonResponse(
                                 {'error': 'Session mismatch, other session active.'},
-                                status=401  # Unauthorized access
+                                status=307  # temporarily redirect
                             )
                     except UserProfile.DoesNotExist:
                         pass  # Handle case if UserProfile does not exist
