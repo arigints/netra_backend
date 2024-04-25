@@ -256,20 +256,16 @@ def values_single_cu(request):
         values_yaml = helm_output.decode('utf-8')
 
         # Convert YAML to JSON
-        values_json = yaml.safe_load(values_yaml)  # Assumes PyYAML or similar package is used
+        values_json = yaml.safe_load(values_yaml)
 
-        # It seems like the structure might differ. Make sure to access the correct path.
-        # Extract specific values assuming 'values' is the top-level key as per your example.
+        # Assuming 'values' is the top-level key as per your example (confirm this path in your actual YAML structure).
         specific_values = {
-            'cuName': values_json.get('config', {}).get('cuName', ''),
-            'f1IfName': values_json.get('config', {}).get('f1IfName', ''),
-            # For multus values, ensure you're accessing the multus configuration correctly
+            'cuId': values_json.get('config', {}).get('cuId', ''),    
+            'cellId': values_json.get('config', {}).get('cellId', ''),  
             'f1InterfaceIPadd': values_json.get('multus', {}).get('f1Interface', {}).get('IPadd', ''),
             'f1cuPort': values_json.get('config', {}).get('f1cuPort', ''),
             'f1duPort': values_json.get('config', {}).get('f1duPort', ''),
-            'n2IfName': values_json.get('config', {}).get('n2IfName', ''),
             'n2InterfaceIPadd': values_json.get('multus', {}).get('n2Interface', {}).get('IPadd', ''),
-            'n3IfName': values_json.get('config', {}).get('n3IfName', ''),
             'n3InterfaceIPadd': values_json.get('multus', {}).get('n3Interface', {}).get('IPadd', ''),
             'mcc': values_json.get('config', {}).get('mcc', ''),
             'mnc': values_json.get('config', {}).get('mnc', ''),
@@ -288,6 +284,7 @@ def values_single_cu(request):
         return JsonResponse({'error': 'An unexpected error occurred',
                              'details': str(e)}, status=500)
 
+
 ###SINGLE - DU###
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -305,8 +302,9 @@ def values_single_du(request):
 
         # Extract specific values
         specific_values = {
-            'duName': values_json.get('config', {}).get('duName', ''),
-            'f1IfName': values_json.get('config', {}).get('f1IfName', ''),
+            'gnbId': values_json.get('config', {}).get('gnbId', ''),   
+            'duId': values_json.get('config', {}).get('duId', ''),      
+            'cellId': values_json.get('config', {}).get('cellId', ''),
             'f1InterfaceIPadd': values_json.get('multus', {}).get('f1Interface', {}).get('IPadd', ''),
             'f1cuPort': values_json.get('config', {}).get('f1cuPort', ''),
             'f1duPort': values_json.get('config', {}).get('f1duPort', ''),
@@ -385,15 +383,12 @@ def values_multignb_cu(request):
         # It seems like the structure might differ. Make sure to access the correct path.
         # Extract specific values assuming 'values' is the top-level key as per your example.
         specific_values = {
-            'cuName': values_json.get('config', {}).get('cuName', ''),
-            'f1IfName': values_json.get('config', {}).get('f1IfName', ''),
-            # For multus values, ensure you're accessing the multus configuration correctly
+            'cuId': values_json.get('config', {}).get('cuId', ''),    
+            'cellId': values_json.get('config', {}).get('cellId', ''),  
             'f1InterfaceIPadd': values_json.get('multus', {}).get('f1Interface', {}).get('IPadd', ''),
             'f1cuPort': values_json.get('config', {}).get('f1cuPort', ''),
             'f1duPort': values_json.get('config', {}).get('f1duPort', ''),
-            'n2IfName': values_json.get('config', {}).get('n2IfName', ''),
             'n2InterfaceIPadd': values_json.get('multus', {}).get('n2Interface', {}).get('IPadd', ''),
-            'n3IfName': values_json.get('config', {}).get('n3IfName', ''),
             'n3InterfaceIPadd': values_json.get('multus', {}).get('n3Interface', {}).get('IPadd', ''),
             'mcc': values_json.get('config', {}).get('mcc', ''),
             'mnc': values_json.get('config', {}).get('mnc', ''),
@@ -429,12 +424,13 @@ def values_multignb_du1(request):
 
         # Extract specific values
         specific_values = {
-            'duName': values_json.get('config', {}).get('duName', ''),
-            'f1IfName': values_json.get('config', {}).get('f1IfName', ''),
+            'gnbId': values_json.get('config', {}).get('gnbId', ''),   
+            'duId': values_json.get('config', {}).get('duId', ''),      
+            'cellId': values_json.get('config', {}).get('cellId', ''),
+            'phyCellId': values_json.get('config', {}).get('phyCellId', ''),
             'f1InterfaceIPadd': values_json.get('multus', {}).get('f1Interface', {}).get('IPadd', ''),
             'f1cuPort': values_json.get('config', {}).get('f1cuPort', ''),
             'f1duPort': values_json.get('config', {}).get('f1duPort', ''),
-            'ruInterfaceIPadd': values_json.get('multus', {}).get('ruInterface', {}).get('IPadd', ''),
             'mcc': values_json.get('config', {}).get('mcc', ''),
             'mnc': values_json.get('config', {}).get('mnc', ''),
             'tac': values_json.get('config', {}).get('tac', ''),
@@ -470,12 +466,13 @@ def values_multignb_du2(request):
 
         # Extract specific values
         specific_values = {
-            'duName': values_json.get('config', {}).get('duName', ''),
-            'f1IfName': values_json.get('config', {}).get('f1IfName', ''),
+            'gnbId': values_json.get('config', {}).get('gnbId', ''),   
+            'duId': values_json.get('config', {}).get('duId', ''),      
+            'cellId': values_json.get('config', {}).get('cellId', ''),
+            'phyCellId': values_json.get('config', {}).get('phyCellId', ''),
             'f1InterfaceIPadd': values_json.get('multus', {}).get('f1Interface', {}).get('IPadd', ''),
             'f1cuPort': values_json.get('config', {}).get('f1cuPort', ''),
             'f1duPort': values_json.get('config', {}).get('f1duPort', ''),
-            'ruInterfaceIPadd': values_json.get('multus', {}).get('ruInterface', {}).get('IPadd', ''),
             'mcc': values_json.get('config', {}).get('mcc', ''),
             'mnc': values_json.get('config', {}).get('mnc', ''),
             'tac': values_json.get('config', {}).get('tac', ''),
@@ -588,15 +585,12 @@ def values_multiue_cu(request):
         # It seems like the structure might differ. Make sure to access the correct path.
         # Extract specific values assuming 'values' is the top-level key as per your example.
         specific_values = {
-            'cuName': values_json.get('config', {}).get('cuName', ''),
-            'f1IfName': values_json.get('config', {}).get('f1IfName', ''),
-            # For multus values, ensure you're accessing the multus configuration correctly
+            'cuId': values_json.get('config', {}).get('cuId', ''),    
+            'cellId': values_json.get('config', {}).get('cellId', ''),  
             'f1InterfaceIPadd': values_json.get('multus', {}).get('f1Interface', {}).get('IPadd', ''),
             'f1cuPort': values_json.get('config', {}).get('f1cuPort', ''),
             'f1duPort': values_json.get('config', {}).get('f1duPort', ''),
-            'n2IfName': values_json.get('config', {}).get('n2IfName', ''),
             'n2InterfaceIPadd': values_json.get('multus', {}).get('n2Interface', {}).get('IPadd', ''),
-            'n3IfName': values_json.get('config', {}).get('n3IfName', ''),
             'n3InterfaceIPadd': values_json.get('multus', {}).get('n3Interface', {}).get('IPadd', ''),
             'mcc': values_json.get('config', {}).get('mcc', ''),
             'mnc': values_json.get('config', {}).get('mnc', ''),
@@ -604,7 +598,6 @@ def values_multiue_cu(request):
             'sst': values_json.get('config', {}).get('sst', ''),
             'amfhost': values_json.get('config', {}).get('amfhost', '')
         }
-
         return JsonResponse({'values': specific_values})
 
     except subprocess.CalledProcessError as e:
@@ -632,12 +625,12 @@ def values_multiue_du(request):
 
         # Extract specific values
         specific_values = {
-            'duName': values_json.get('config', {}).get('duName', ''),
-            'f1IfName': values_json.get('config', {}).get('f1IfName', ''),
+            'gnbId': values_json.get('config', {}).get('gnbId', ''),   
+            'duId': values_json.get('config', {}).get('duId', ''),      
+            'cellId': values_json.get('config', {}).get('cellId', ''),
             'f1InterfaceIPadd': values_json.get('multus', {}).get('f1Interface', {}).get('IPadd', ''),
             'f1cuPort': values_json.get('config', {}).get('f1cuPort', ''),
             'f1duPort': values_json.get('config', {}).get('f1duPort', ''),
-            'ruInterfaceIPadd': values_json.get('multus', {}).get('ruInterface', {}).get('IPadd', ''),
             'mcc': values_json.get('config', {}).get('mcc', ''),
             'mnc': values_json.get('config', {}).get('mnc', ''),
             'tac': values_json.get('config', {}).get('tac', ''),
@@ -744,22 +737,18 @@ def config_single_cu(request):
     current_values = yaml.safe_load(current_values_yaml)
 
     # Check if each field is provided in the form and update accordingly
-    if 'cu_name' in request.POST and request.POST['cu_name']:
-        current_values['config']['cuName'] = request.POST['cu_name']
-    if 'f1_ifname' in request.POST and request.POST['f1_ifname']:
-        current_values['config']['f1IfName'] = request.POST['f1_ifname']
+    if 'cu_id' in request.POST and request.POST['cu_id']:
+        current_values['config']['cuId'] = request.POST['cu_id']
+    if 'cell_id' in request.POST and request.POST['cell_id']:
+        current_values['config']['cellId'] = request.POST['cell_id']
     if 'f1_int' in request.POST and request.POST['f1_int']:
         current_values['multus']['f1Interface']['IPadd'] = request.POST['f1_int']
     if 'f1_cuport' in request.POST and request.POST['f1_cuport']:
         current_values['config']['f1cuPort'] = request.POST['f1_cuport']
     if 'f1_duport' in request.POST and request.POST['f1_duport']:
         current_values['config']['f1duPort'] = request.POST['f1_duport']
-    if 'n2_ifname' in request.POST and request.POST['n2_ifname']:
-        current_values['config']['n2IfName'] = request.POST['n2_ifname']
     if 'n2_int' in request.POST and request.POST['n2_int']:
         current_values['multus']['n2Interface']['IPadd'] = request.POST['n2_int']
-    if 'n3_ifname' in request.POST and request.POST['n3_ifname']:
-        current_values['config']['n3IfName'] = request.POST['n3_ifname']
     if 'n3_int' in request.POST and request.POST['n3_int']:
         current_values['multus']['n3Interface']['IPadd'] = request.POST['n3_int']
     if 'mcc' in request.POST and request.POST['mcc']:
@@ -802,10 +791,12 @@ def config_single_du(request):
     current_values = yaml.safe_load(current_values_yaml)
 
     # Check if each field is provided in the form and update accordingly
-    if 'du_name' in request.POST and request.POST['du_name']:
-        current_values['config']['duName'] = request.POST['du_name']
-    if 'f1_ifname' in request.POST and request.POST['f1_ifname']:
-        current_values['config']['f1IfName'] = request.POST['f1_ifname']
+    if 'gnb_id' in request.POST and request.POST['gnb_id']:
+        current_values['config']['gnbId'] = request.POST['gnb_id']
+    if 'du_id' in request.POST and request.POST['du_id']:
+        current_values['config']['duId'] = request.POST['du_id']
+    if 'cell_id' in request.POST and request.POST['cell_id']:
+        current_values['config']['cellId'] = request.POST['cell_id']
     if 'f1_int' in request.POST and request.POST['f1_int']:
         current_values['multus']['f1Interface']['IPadd'] = request.POST['f1_int']
     if 'f1_cuport' in request.POST and request.POST['f1_cuport']:
@@ -903,22 +894,18 @@ def config_multignb_cu(request):
     current_values = yaml.safe_load(current_values_yaml)
 
     # Check if each field is provided in the form and update accordingly
-    if 'cu_name' in request.POST and request.POST['cu_name']:
-        current_values['config']['cuName'] = request.POST['cu_name']
-    if 'f1_ifname' in request.POST and request.POST['f1_ifname']:
-        current_values['config']['f1IfName'] = request.POST['f1_ifname']
+    if 'cu_id' in request.POST and request.POST['cu_id']:
+        current_values['config']['cuId'] = request.POST['cu_id']
+    if 'cell_id' in request.POST and request.POST['cell_id']:
+        current_values['config']['cellId'] = request.POST['cell_id']
     if 'f1_int' in request.POST and request.POST['f1_int']:
         current_values['multus']['f1Interface']['IPadd'] = request.POST['f1_int']
     if 'f1_cuport' in request.POST and request.POST['f1_cuport']:
         current_values['config']['f1cuPort'] = request.POST['f1_cuport']
     if 'f1_duport' in request.POST and request.POST['f1_duport']:
         current_values['config']['f1duPort'] = request.POST['f1_duport']
-    if 'n2_ifname' in request.POST and request.POST['n2_ifname']:
-        current_values['config']['n2IfName'] = request.POST['n2_ifname']
     if 'n2_int' in request.POST and request.POST['n2_int']:
         current_values['multus']['n2Interface']['IPadd'] = request.POST['n2_int']
-    if 'n3_ifname' in request.POST and request.POST['n3_ifname']:
-        current_values['config']['n3IfName'] = request.POST['n3_ifname']
     if 'n3_int' in request.POST and request.POST['n3_int']:
         current_values['multus']['n3Interface']['IPadd'] = request.POST['n3_int']
     if 'mcc' in request.POST and request.POST['mcc']:
@@ -961,10 +948,14 @@ def config_multignb_du1(request):
     current_values = yaml.safe_load(current_values_yaml)
 
     # Check if each field is provided in the form and update accordingly
-    if 'du_name' in request.POST and request.POST['du_name']:
-        current_values['config']['duName'] = request.POST['du_name']
-    if 'f1_ifname' in request.POST and request.POST['f1_ifname']:
-        current_values['config']['f1IfName'] = request.POST['f1_ifname']
+    if 'gnb_id' in request.POST and request.POST['gnb_id']:
+        current_values['config']['gnbId'] = request.POST['gnb_id']
+    if 'du_id' in request.POST and request.POST['du_id']:
+        current_values['config']['duId'] = request.POST['du_id']
+    if 'cell_id' in request.POST and request.POST['cell_id']:
+        current_values['config']['cellId'] = request.POST['cell_id']
+    if 'phycell_id' in request.POST and request.POST['phycell_id']:
+        current_values['config']['phyCellId'] = request.POST['phycell_id']
     if 'f1_int' in request.POST and request.POST['f1_int']:
         current_values['multus']['f1Interface']['IPadd'] = request.POST['f1_int']
     if 'f1_cuport' in request.POST and request.POST['f1_cuport']:
@@ -1013,10 +1004,14 @@ def config_multignb_du2(request):
     current_values = yaml.safe_load(current_values_yaml)
 
     # Check if each field is provided in the form and update accordingly
-    if 'du_name' in request.POST and request.POST['du_name']:
-        current_values['config']['duName'] = request.POST['du_name']
-    if 'f1_ifname' in request.POST and request.POST['f1_ifname']:
-        current_values['config']['f1IfName'] = request.POST['f1_ifname']
+    if 'gnb_id' in request.POST and request.POST['gnb_id']:
+        current_values['config']['gnbId'] = request.POST['gnb_id']
+    if 'du_id' in request.POST and request.POST['du_id']:
+        current_values['config']['duId'] = request.POST['du_id']
+    if 'cell_id' in request.POST and request.POST['cell_id']:
+        current_values['config']['cellId'] = request.POST['cell_id']
+    if 'phycell_id' in request.POST and request.POST['phycell_id']:
+        current_values['config']['phyCellId'] = request.POST['phycell_id']
     if 'f1_int' in request.POST and request.POST['f1_int']:
         current_values['multus']['f1Interface']['IPadd'] = request.POST['f1_int']
     if 'f1_cuport' in request.POST and request.POST['f1_cuport']:
@@ -1162,22 +1157,18 @@ def config_multiue_cu(request):
     current_values = yaml.safe_load(current_values_yaml)
 
     # Check if each field is provided in the form and update accordingly
-    if 'cu_name' in request.POST and request.POST['cu_name']:
-        current_values['config']['cuName'] = request.POST['cu_name']
-    if 'f1_ifname' in request.POST and request.POST['f1_ifname']:
-        current_values['config']['f1IfName'] = request.POST['f1_ifname']
+    if 'cu_id' in request.POST and request.POST['cu_id']:
+        current_values['config']['cuId'] = request.POST['cu_id']
+    if 'cell_id' in request.POST and request.POST['cell_id']:
+        current_values['config']['cellId'] = request.POST['cell_id']
     if 'f1_int' in request.POST and request.POST['f1_int']:
         current_values['multus']['f1Interface']['IPadd'] = request.POST['f1_int']
     if 'f1_cuport' in request.POST and request.POST['f1_cuport']:
         current_values['config']['f1cuPort'] = request.POST['f1_cuport']
     if 'f1_duport' in request.POST and request.POST['f1_duport']:
         current_values['config']['f1duPort'] = request.POST['f1_duport']
-    if 'n2_ifname' in request.POST and request.POST['n2_ifname']:
-        current_values['config']['n2IfName'] = request.POST['n2_ifname']
     if 'n2_int' in request.POST and request.POST['n2_int']:
         current_values['multus']['n2Interface']['IPadd'] = request.POST['n2_int']
-    if 'n3_ifname' in request.POST and request.POST['n3_ifname']:
-        current_values['config']['n3IfName'] = request.POST['n3_ifname']
     if 'n3_int' in request.POST and request.POST['n3_int']:
         current_values['multus']['n3Interface']['IPadd'] = request.POST['n3_int']
     if 'mcc' in request.POST and request.POST['mcc']:
@@ -1220,10 +1211,12 @@ def config_multiue_du(request):
     current_values = yaml.safe_load(current_values_yaml)
 
     # Check if each field is provided in the form and update accordingly
-    if 'du_name' in request.POST and request.POST['du_name']:
-        current_values['config']['duName'] = request.POST['du_name']
-    if 'f1_ifname' in request.POST and request.POST['f1_ifname']:
-        current_values['config']['f1IfName'] = request.POST['f1_ifname']
+    if 'gnb_id' in request.POST and request.POST['gnb_id']:
+        current_values['config']['gnbId'] = request.POST['gnb_id']
+    if 'du_id' in request.POST and request.POST['du_id']:
+        current_values['config']['duId'] = request.POST['du_id']
+    if 'cell_id' in request.POST and request.POST['cell_id']:
+        current_values['config']['cellId'] = request.POST['cell_id']
     if 'f1_int' in request.POST and request.POST['f1_int']:
         current_values['multus']['f1Interface']['IPadd'] = request.POST['f1_int']
     if 'f1_cuport' in request.POST and request.POST['f1_cuport']:
@@ -1364,10 +1357,11 @@ def config_multiue_ue2(request):
 def start_single_cu(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-cu-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "single-cu", "--replicas=1",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
             "--namespace=" + namespace
         ])
         return Response({"message": "CU successfully started"}, status=status.HTTP_200_OK)
@@ -1380,10 +1374,11 @@ def start_single_cu(request):
 def start_single_du(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-du-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "single-du", "--replicas=1",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
             "--namespace=" + namespace
         ])
         return Response({"message": "DU successfully started"}, status=status.HTTP_200_OK)
@@ -1396,10 +1391,11 @@ def start_single_du(request):
 def start_single_ue(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-nr-ue-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "single-ue", "--replicas=1",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
             "--namespace=" + namespace
         ])
         return Response({"message": "UE successfully started"}, status=status.HTTP_200_OK)
@@ -1412,10 +1408,11 @@ def start_single_ue(request):
 def start_multignb_cu(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-cu-mdu-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "multignb-cu", "--replicas=1",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
             "--namespace=" + namespace
         ])
         return Response({"message": "CU successfully started"}, status=status.HTTP_200_OK)
@@ -1428,10 +1425,11 @@ def start_multignb_cu(request):
 def start_multignb_du1(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-du-mdu-1-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "multignb-du1", "--replicas=1",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
             "--namespace=" + namespace
         ])
         return Response({"message": "DU successfully started"}, status=status.HTTP_200_OK)
@@ -1444,10 +1442,11 @@ def start_multignb_du1(request):
 def start_multignb_du2(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-du-mdu-2-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "multignb-du2", "--replicas=1",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
             "--namespace=" + namespace
         ])
         return Response({"message": "DU successfully started"}, status=status.HTTP_200_OK)
@@ -1460,10 +1459,11 @@ def start_multignb_du2(request):
 def start_multignb_ue1(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-nr-ue-mdu-1-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "multignb-ue1", "--replicas=1",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
             "--namespace=" + namespace
         ])
         return Response({"message": "UE successfully started"}, status=status.HTTP_200_OK)
@@ -1476,10 +1476,11 @@ def start_multignb_ue1(request):
 def start_multignb_ue2(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-nr-ue-mdu-2-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "multignb-ue2", "--replicas=1",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
             "--namespace=" + namespace
         ])
         return Response({"message": "UE successfully started"}, status=status.HTTP_200_OK)
@@ -1492,10 +1493,11 @@ def start_multignb_ue2(request):
 def start_multiue_cu(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-cu-mue-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "multiue-cu", "--replicas=1",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
             "--namespace=" + namespace
         ])
         return Response({"message": "CU successfully started"}, status=status.HTTP_200_OK)
@@ -1508,15 +1510,16 @@ def start_multiue_cu(request):
 def start_multiue_du(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-du-mue-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "multiue-du", "--replicas=1",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
             "--namespace=" + namespace
         ])
-        return HttpResponse("DU started")
+        return Response({"message": "DU successfully started"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###MULTIUE UE1 - START###
 @api_view(['POST'])
@@ -1524,10 +1527,11 @@ def start_multiue_du(request):
 def start_multiue_ue1(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-nr-ue-mue-1-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "multiue-ue1", "--replicas=1",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
             "--namespace=" + namespace
         ])
         return Response({"message": "UE successfully started"}, status=status.HTTP_200_OK)
@@ -1540,10 +1544,11 @@ def start_multiue_ue1(request):
 def start_multiue_ue2(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-nr-ue-mue-2-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "multiue-ue2", "--replicas=1",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
             "--namespace=" + namespace
         ])
         return Response({"message": "UE successfully started"}, status=status.HTTP_200_OK)
@@ -1557,15 +1562,16 @@ def start_multiue_ue2(request):
 def stop_single_cu(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-cu-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "single-cu", "--replicas=0",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
             "--namespace=" + namespace
         ])
-        return HttpResponse("CU Stopped")
+        return Response({"message": "CU successfully stopped"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###SINGLE DU - STOP###
 @api_view(['POST'])
@@ -1573,15 +1579,16 @@ def stop_single_cu(request):
 def stop_single_du(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-du-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "single-du", "--replicas=0",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
             "--namespace=" + namespace
         ])
-        return HttpResponse("DU Stopped")
+        return Response({"message": "DU successfully stopped"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###SINGLE UE - STOP###
 @api_view(['POST'])
@@ -1589,15 +1596,16 @@ def stop_single_du(request):
 def stop_single_ue(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-nr-ue-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "single-ue", "--replicas=0",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
             "--namespace=" + namespace
         ])
-        return HttpResponse("UE Stopped")
+        return Response({"message": "UE successfully stopped"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###MULTIGNB CU - STOP###
 @api_view(['POST'])
@@ -1605,15 +1613,16 @@ def stop_single_ue(request):
 def stop_multignb_cu(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-cu-mdu-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "multignb-cu", "--replicas=0",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
             "--namespace=" + namespace
         ])
-        return HttpResponse("CU Stopped")
+        return Response({"message": "CU successfully stopped"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###MULTIGNB DU1 - STOP###
 @api_view(['POST'])
@@ -1621,15 +1630,16 @@ def stop_multignb_cu(request):
 def stop_multignb_du1(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-du-mdu-1-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "multignb-du1", "--replicas=0",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
             "--namespace=" + namespace
         ])
-        return HttpResponse("DU1 Stopped")
+        return Response({"message": "DU-1 successfully stopped"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###MULTIGNB DU2 - STOP###
 @api_view(['POST'])
@@ -1637,15 +1647,16 @@ def stop_multignb_du1(request):
 def stop_multignb_du2(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-du-mdu-2-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "multignb-du2", "--replicas=0",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
             "--namespace=" + namespace
         ])
-        return HttpResponse("DU2 Stopped")
+        return Response({"message": "DU-2 successfully stopped"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###MULTIGNB UE1 - STOP###
 @api_view(['POST'])
@@ -1653,15 +1664,16 @@ def stop_multignb_du2(request):
 def stop_multignb_ue1(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-nr-ue-mdu-1-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "multignb-ue1", "--replicas=0",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
             "--namespace=" + namespace
         ])
-        return HttpResponse("UE Stopped")
+        return Response({"message": "UE-1 successfully stopped"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###MULTIGNB UE2 - STOP###
 @api_view(['POST'])
@@ -1669,15 +1681,16 @@ def stop_multignb_ue1(request):
 def stop_multignb_ue2(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-nr-ue-mdu-2-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "multignb-ue2", "--replicas=0",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
             "--namespace=" + namespace
         ])
-        return HttpResponse("UE Stopped")
+        return Response({"message": "UE-2 successfully stopped"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###MULTIUE CU - STOP###
 @api_view(['POST'])
@@ -1685,15 +1698,16 @@ def stop_multignb_ue2(request):
 def stop_multiue_cu(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-cu-mue-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "multiue-cu", "--replicas=0",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
             "--namespace=" + namespace
         ])
-        return HttpResponse("CU Stopped")
+        return Response({"message": "CU successfully stopped"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###MULTIUE DU - STOP###
 @api_view(['POST'])
@@ -1701,15 +1715,16 @@ def stop_multiue_cu(request):
 def stop_multiue_du(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-du-mue-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "multiue-du", "--replicas=0",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
             "--namespace=" + namespace
         ])
-        return HttpResponse("DU Stopped")
+        return Response({"message": "DU successfully stopped"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###MULTIUE UE1 - STOP###
 @api_view(['POST'])
@@ -1717,15 +1732,16 @@ def stop_multiue_du(request):
 def stop_multiue_ue1(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-nr-ue-mue-1-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "multiue-ue1", "--replicas=0",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
             "--namespace=" + namespace
         ])
-        return HttpResponse("UE1 Stopped")
+        return Response({"message": "UE-1 successfully stopped"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###MULTIUE UE2 - STOP###
 @api_view(['POST'])
@@ -1733,15 +1749,16 @@ def stop_multiue_ue1(request):
 def stop_multiue_ue2(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
-        namespace = f"{username}-namespace"  # Construct the namespace based on the username
+        namespace = f"{username}"  # Construct the namespace based on the username
+        deployment_name = f"oai-nr-ue-mue-2-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
-            "kubectl", "scale", "deployment", "multiue-ue2", "--replicas=0",
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
             "--namespace=" + namespace
         ])
-        return HttpResponse("UE2 Stopped")
+        return Response({"message": "UE-2 successfully stopped"}, status=status.HTTP_200_OK)
     except subprocess.CalledProcessError as e:
-        return HttpResponse(f"An error occurred: {e}")
+        return Response({"error": f"An error occurred: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])

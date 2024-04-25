@@ -103,7 +103,7 @@ MIDDLEWARE = [
     #///////#BATAS DEFAULT#/////////
     #///////////////////////////////
     'corsheaders.middleware.CorsMiddleware',
-    'apps.middleware.OneSessionPerUserMiddleware',
+    'apps.middleware.SingleSessionMiddleware',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True       #///////#CONFIGURED#///////
@@ -175,7 +175,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Asia/Jakarta'
+TIME_ZONE = 'Asia/Jakarta'  #CONFIGURED
 
 USE_I18N = True
 
@@ -191,3 +191,4 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

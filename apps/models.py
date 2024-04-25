@@ -11,24 +11,3 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
-
-# Signal to create or update user profile
-@receiver(post_save, sender=settings.AUTH_USER_MODEL)
-def create_or_update_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.create(user=instance)
-    instance.profile.save()
-
-
-
-# Signal for user session management
-from django.contrib.auth.signals import user_logged_in
-from django.dispatch import receiver
-
-@receiver(user_logged_in)
-def update_user_session(sender, request, user, **kwargs):
-    # Get or create the user profile
-    profile, _ = UserProfile.objects.get_or_create(user=user)
-    # Update the session key in the profile
-    profile.session_key = request.session.session_key
-    profile.save()

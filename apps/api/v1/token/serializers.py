@@ -1,11 +1,42 @@
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.contrib.sessions.models import Session
+import uuid
+from apps.models import UserProfile
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
+    def validate(self, attrs):
+        # First, call the superclass method that validates the user and returns the token
+        data = super().validate(attrs)
+        
+        # Get the user object
+        user = self.user
 
-        # Add custom claims
+        # Generate a new session identifier
+        new_session_id = str(uuid.uuid4())
+        
+        # Retrieve or create the user profile
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        
+        # Invalidate the previous session if it exists
+        if profile.session_key:
+            Session.objects.filter(session_key=profile.session_key).delete()
+
+        # Update the user profile with the new session identifier
+        profile.session_key = new_session_id
+        profile.save()
+
+        # Add custom claims to the token
+        token = self.get_token(user)  # This retrieves the already generated token
         token['is_staff'] = user.is_staff
         token['is_superuser'] = user.is_superuser
-        return token
+        token['session_id'] = new_session_id  # Include the new session identifier in the token
+
+        # Return the token and additional data
+        return {
+            'access': str(token.access_token),
+            'refresh': str(token),
+            'session_id': new_session_id,
+            'is_staff': user.is_staff,
+            'is_superuser': user.is_superuser
+        }
+
