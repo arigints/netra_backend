@@ -3,7 +3,8 @@ FROM quay.tiplab.local/openetra/ubuntu:jammy
 # install requirement dependencies
 COPY . .
 RUN apt update && \ 
-    apt install python3 python3-pip curl git tshark wireshark -y && \
+    apt install python3 python3-pip curl git wireshark -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y tshark && \
     pip install -r requirements.txt
 ENV TZ=Asia/Bangkok
 
