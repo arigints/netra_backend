@@ -2,10 +2,10 @@ FROM quay.tiplab.local/openetra/ubuntu:jammy
 
 # install requirement dependencies
 COPY . .
-RUN apt update && \ 
-    apt install python3 python3-pip curl git wireshark -y && \
+RUN echo 'wireshark-common wireshark-common/install-setuid boolean true' | debconf-set-selections && \
+    apt update && \ 
+    apt install python3 python3-pip curl git tshark wireshark -y && \
     pip install -r requirements.txt
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y tshark
 ENV TZ=Asia/Bangkok
 
 # kubectl install
