@@ -11,7 +11,16 @@ services:
       - POSTGRES_PASSWORD=opennetra
       - POSTGRES_USER=postgres
       - POSTGRES_DB=netrabase
+    networks:
+      - netra
+
   backend:
     image: quay.tiplab.local/openetra/be:dev
     ports:
       - 8000:8000
+    networks:
+      - netra
+
+networks:
+  netra:
+    driver: bridge
