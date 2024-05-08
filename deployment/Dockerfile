@@ -4,8 +4,8 @@ FROM quay.tiplab.local/openetra/ubuntu:jammy
 COPY . .
 RUN apt update && \ 
     apt install python3 python3-pip curl git wireshark -y && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y tshark && \
     pip install -r requirements.txt
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y tshark
 ENV TZ=Asia/Bangkok
 
 # kubectl install
