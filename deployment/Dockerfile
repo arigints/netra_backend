@@ -5,7 +5,7 @@ COPY . .
 RUN echo 'wireshark-common wireshark-common/install-setuid boolean true' | debconf-set-selections && \
     apt update && \ 
     apt install python3 python3-pip curl git tshark wireshark -y && \
-    pip install -r requirements.txt
+    pip install -r /requirements.txt
 ENV TZ=Asia/Bangkok
 
 # kubectl install
