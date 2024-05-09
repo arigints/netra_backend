@@ -94,73 +94,73 @@ def create_all_components(request, namespace):
 
         #SINGLE - CU
         subprocess.run([
-            "helm", "install", "single-cu", "--values", "values.yaml",
+            "helm", "install", "single_cu", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=SINGLE_CU_BASE_DIR)
 
         #SINGLE - DU
         subprocess.run([
-            "helm", "install", "single-du", "--values", "values.yaml",
+            "helm", "install", "single_du", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=SINGLE_DU_BASE_DIR)
 
         #SINGLE - UE
         subprocess.run([
-            "helm", "install", "single-ue", "--values", "values.yaml",
+            "helm", "install", "single_ue", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=SINGLE_UE_BASE_DIR)
 
         #MULTI-GNB - CU
         subprocess.run([
-            "helm", "install", "multignb-cu", "--values", "values.yaml",
+            "helm", "install", "multignb_cu", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=MULTI_GNB_CU_BASE_DIR)
 
         #MULTI-GNB - DU1
         subprocess.run([
-            "helm", "install", "multignb-du1", "--values", "values.yaml",
+            "helm", "install", "multignb_du1", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=MULTI_GNB_DU1_BASE_DIR)
 
         #MULTI-GNB - DU2
         subprocess.run([
-            "helm", "install", "multignb-du2", "--values", "values.yaml",
+            "helm", "install", "multignb_du2", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=MULTI_GNB_DU2_BASE_DIR)
 
         #MULTI-GNB - UE1
         subprocess.run([
-            "helm", "install", "multignb-ue1", "--values", "values.yaml",
+            "helm", "install", "multignb_ue1", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=MULTI_GNB_UE1_BASE_DIR)
 
         #MULTI-GNB - UE2
         subprocess.run([
-            "helm", "install", "multignb-ue2", "--values", "values.yaml",
+            "helm", "install", "multignb_ue2", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=MULTI_GNB_UE2_BASE_DIR)
 
         #MULTI-UE - CU
         subprocess.run([
-            "helm", "install", "multiue-cu", "--values", "values.yaml",
+            "helm", "install", "multiue_cu", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=MULTI_UE_CU_BASE_DIR)
 
         #MULTI-UE - DU
         subprocess.run([
-            "helm", "install", "multiue-du", "--values", "values.yaml",
+            "helm", "install", "multiue_du", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=MULTI_UE_DU_BASE_DIR)
 
         #MULTI-UE - UE1
         subprocess.run([
-            "helm", "install", "multiue-ue1", "--values", "values.yaml",
+            "helm", "install", "multiue_ue1", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=MULTI_UE_UE1_BASE_DIR)
 
         #MULTI-UE - UE2
         subprocess.run([
-            "helm", "install", "multiue-ue2", "--values", "values.yaml",
+            "helm", "install", "multiue_ue2", "--values", "values.yaml",
             ".", "--namespace", namespace
         ], cwd=MULTI_UE_UE2_BASE_DIR)
 
@@ -178,62 +178,62 @@ def delete_all_components(request, namespace):
     try:
         #SINGLE - CU
         subprocess.run([
-            "helm", "delete", "single-cu", "--namespace", namespace
+            "helm", "delete", "single_cu", "--namespace", namespace
         ])
 
         #SINGLE - DU
         subprocess.run([
-            "helm", "delete", "single-du", "--namespace", namespace
+            "helm", "delete", "single_du", "--namespace", namespace
         ])
 
         #SINGLE - UE
         subprocess.run([
-            "helm", "delete", "single-ue", "--namespace", namespace
+            "helm", "delete", "single_ue", "--namespace", namespace
         ])
 
         #MULTI-GNB - CU
         subprocess.run([
-            "helm", "delete", "multignb-cu", "--namespace", namespace
+            "helm", "delete", "multignb_cu", "--namespace", namespace
         ])
 
         #MULTI-GNB - DU1
         subprocess.run([
-            "helm", "delete", "multignb-du1", "--namespace", namespace
+            "helm", "delete", "multignb_du1", "--namespace", namespace
         ])
 
         #MULTI-GNB - DU2
         subprocess.run([
-            "helm", "delete", "multignb-du2", "--namespace", namespace
+            "helm", "delete", "multignb_du2", "--namespace", namespace
         ])
 
         #MULTI-GNB - UE1
         subprocess.run([
-            "helm", "delete", "multignb-ue1", "--namespace", namespace
+            "helm", "delete", "multignb_ue1", "--namespace", namespace
         ])
 
         #MULTI-GNB - UE2
         subprocess.run([
-            "helm", "delete", "multignb-ue2", "--namespace", namespace
+            "helm", "delete", "multignb_ue2", "--namespace", namespace
         ])
 
         #MULTI-UE - CU
         subprocess.run([
-            "helm", "delete", "multiue-cu", "--namespace", namespace
+            "helm", "delete", "multiue_cu", "--namespace", namespace
         ])
 
         #MULTI-UE - DU
         subprocess.run([
-            "helm", "delete", "multiue-du", "--namespace", namespace
+            "helm", "delete", "multiue_du", "--namespace", namespace
         ])
 
         #MULTI-UE - UE1
         subprocess.run([
-            "helm", "delete", "multiue-ue1", "--namespace", namespace
+            "helm", "delete", "multiue_ue1", "--namespace", namespace
         ])
 
         #MULTI-UE - UE2
         subprocess.run([
-            "helm", "delete", "multiue-ue2", "--namespace", namespace
+            "helm", "delete", "multiue_ue2", "--namespace", namespace
         ])
 
         return "Success"
@@ -250,7 +250,7 @@ def values_single_cu(request):
     user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
-    command = ["helm", "get", "values", "single-cu", "--namespace", user_namespace]
+    command = ["helm", "get", "values", "single_cu", "--namespace", user_namespace]
     try:
         helm_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
         values_yaml = helm_output.decode('utf-8')
@@ -292,7 +292,7 @@ def values_single_du(request):
     user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
-    command = ["helm", "get", "values", "single-du", "--namespace", user_namespace]
+    command = ["helm", "get", "values", "single_du", "--namespace", user_namespace]
     try:
         helm_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
         values_yaml = helm_output.decode('utf-8')
@@ -333,7 +333,7 @@ def values_single_ue(request):
     user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
-    command = ["helm", "get", "values", "single-ue", "--namespace", user_namespace]
+    command = ["helm", "get", "values", "single_ue", "--namespace", user_namespace]
     try:
         helm_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
         values_yaml = helm_output.decode('utf-8')
@@ -372,7 +372,7 @@ def values_multignb_cu(request):
     user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
-    command = ["helm", "get", "values", "multignb-cu", "--namespace", user_namespace]
+    command = ["helm", "get", "values", "multignb_cu", "--namespace", user_namespace]
     try:
         helm_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
         values_yaml = helm_output.decode('utf-8')
@@ -414,7 +414,7 @@ def values_multignb_du1(request):
     user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
-    command = ["helm", "get", "values", "multignb-du1", "--namespace", user_namespace]
+    command = ["helm", "get", "values", "multignb_du1", "--namespace", user_namespace]
     try:
         helm_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
         values_yaml = helm_output.decode('utf-8')
@@ -456,7 +456,7 @@ def values_multignb_du2(request):
     user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
-    command = ["helm", "get", "values", "multignb-du2", "--namespace", user_namespace]
+    command = ["helm", "get", "values", "multignb_du2", "--namespace", user_namespace]
     try:
         helm_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
         values_yaml = helm_output.decode('utf-8')
@@ -498,7 +498,7 @@ def values_multignb_ue1(request):
     user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
-    command = ["helm", "get", "values", "multignb-ue1", "--namespace", user_namespace]
+    command = ["helm", "get", "values", "multignb_ue1", "--namespace", user_namespace]
     try:
         helm_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
         values_yaml = helm_output.decode('utf-8')
@@ -536,7 +536,7 @@ def values_multignb_ue2(request):
     user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
-    command = ["helm", "get", "values", "multignb-ue2", "--namespace", user_namespace]
+    command = ["helm", "get", "values", "multignb_ue2", "--namespace", user_namespace]
     try:
         helm_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
         values_yaml = helm_output.decode('utf-8')
@@ -574,7 +574,7 @@ def values_multiue_cu(request):
     user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
-    command = ["helm", "get", "values", "multiue-cu", "--namespace", user_namespace]
+    command = ["helm", "get", "values", "multiue_cu", "--namespace", user_namespace]
     try:
         helm_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
         values_yaml = helm_output.decode('utf-8')
@@ -615,7 +615,7 @@ def values_multiue_du(request):
     user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
-    command = ["helm", "get", "values", "multiue-du", "--namespace", user_namespace]
+    command = ["helm", "get", "values", "multiue_du", "--namespace", user_namespace]
     try:
         helm_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
         values_yaml = helm_output.decode('utf-8')
@@ -656,7 +656,7 @@ def values_multiue_ue1(request):
     user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
-    command = ["helm", "get", "values", "multiue-ue1", "--namespace", user_namespace]
+    command = ["helm", "get", "values", "multiue_ue1", "--namespace", user_namespace]
     try:
         helm_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
         values_yaml = helm_output.decode('utf-8')
@@ -694,7 +694,7 @@ def values_multiue_ue2(request):
     user_namespace = f"{request.user.username}"
 
     # Execute helm get values command
-    command = ["helm", "get", "values", "multiue-ue2", "--namespace", user_namespace]
+    command = ["helm", "get", "values", "multiue_ue2", "--namespace", user_namespace]
     try:
         helm_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
         values_yaml = helm_output.decode('utf-8')
@@ -732,7 +732,7 @@ def values_multiue_ue2(request):
 def config_single_cu(request):
     namespace = f"{request.user.username}"
 
-    get_values_command = ["helm", "get", "values", "single-cu", "--namespace", namespace, "--output", "yaml"]
+    get_values_command = ["helm", "get", "values", "single_cu", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
@@ -786,7 +786,7 @@ def config_single_cu(request):
 def config_single_du(request):
     namespace = f"{request.user.username}"
 
-    get_values_command = ["helm", "get", "values", "single-du", "--namespace", namespace, "--output", "yaml"]
+    get_values_command = ["helm", "get", "values", "single_du", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
@@ -840,7 +840,7 @@ def config_single_du(request):
 def config_single_ue(request):
     namespace = f"{request.user.username}"
 
-    get_values_command = ["helm", "get", "values", "single-ue", "--namespace", namespace, "--output", "yaml"]
+    get_values_command = ["helm", "get", "values", "single_ue", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
@@ -889,7 +889,7 @@ def config_single_ue(request):
 def config_multignb_cu(request):
     namespace = f"{request.user.username}"
 
-    get_values_command = ["helm", "get", "values", "multignb-cu", "--namespace", namespace, "--output", "yaml"]
+    get_values_command = ["helm", "get", "values", "multignb_cu", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
@@ -943,7 +943,7 @@ def config_multignb_cu(request):
 def config_multignb_du1(request):
     namespace = f"{request.user.username}"
 
-    get_values_command = ["helm", "get", "values", "multignb-du1", "--namespace", namespace, "--output", "yaml"]
+    get_values_command = ["helm", "get", "values", "multignb_du1", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
@@ -999,7 +999,7 @@ def config_multignb_du1(request):
 def config_multignb_du2(request):
     namespace = f"{request.user.username}"
 
-    get_values_command = ["helm", "get", "values", "multignb-du2", "--namespace", namespace, "--output", "yaml"]
+    get_values_command = ["helm", "get", "values", "multignb_du2", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
@@ -1055,7 +1055,7 @@ def config_multignb_du2(request):
 def config_multignb_ue1(request):
     namespace = f"{request.user.username}"
 
-    get_values_command = ["helm", "get", "values", "multignb-ue1", "--namespace", namespace, "--output", "yaml"]
+    get_values_command = ["helm", "get", "values", "multignb_ue1", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
@@ -1103,7 +1103,7 @@ def config_multignb_ue1(request):
 def config_multignb_ue2(request):
     namespace = f"{request.user.username}"
 
-    get_values_command = ["helm", "get", "values", "multignb-ue2", "--namespace", namespace, "--output", "yaml"]
+    get_values_command = ["helm", "get", "values", "multignb_ue2", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
@@ -1152,7 +1152,7 @@ def config_multignb_ue2(request):
 def config_multiue_cu(request):
     namespace = f"{request.user.username}"
 
-    get_values_command = ["helm", "get", "values", "multiue-cu", "--namespace", namespace, "--output", "yaml"]
+    get_values_command = ["helm", "get", "values", "multiue_cu", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
@@ -1206,7 +1206,7 @@ def config_multiue_cu(request):
 def config_multiue_du(request):
     namespace = f"{request.user.username}"
 
-    get_values_command = ["helm", "get", "values", "multiue-du", "--namespace", namespace, "--output", "yaml"]
+    get_values_command = ["helm", "get", "values", "multiue_du", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
@@ -1260,7 +1260,7 @@ def config_multiue_du(request):
 def config_multiue_ue1(request):
     namespace = f"{request.user.username}"
 
-    get_values_command = ["helm", "get", "values", "multiue-ue1", "--namespace", namespace, "--output", "yaml"]
+    get_values_command = ["helm", "get", "values", "multiue_ue1", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
@@ -1308,7 +1308,7 @@ def config_multiue_ue1(request):
 def config_multiue_ue2(request):
     namespace = f"{request.user.username}"
 
-    get_values_command = ["helm", "get", "values", "multiue-ue2", "--namespace", namespace, "--output", "yaml"]
+    get_values_command = ["helm", "get", "values", "multiue_ue2", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
