@@ -732,43 +732,41 @@ def values_multiue_ue2(request):
 def config_single_cu(request):
     namespace = f"{request.user.username}"
 
+    # Get current values
     get_values_command = ["helm", "get", "values", "single-cu", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
-    # Check if each field is provided in the form and update accordingly
-    if 'cu_id' in request.POST and request.POST['cu_id']:
-        current_values['config']['cuId'] = request.POST['cu_id']
-    if 'cell_id' in request.POST and request.POST['cell_id']:
-        current_values['config']['cellId'] = request.POST['cell_id']
-    if 'f1_int' in request.POST and request.POST['f1_int']:
-        current_values['multus']['f1Interface']['IPadd'] = request.POST['f1_int']
-    if 'f1_cuport' in request.POST and request.POST['f1_cuport']:
-        current_values['config']['f1cuPort'] = request.POST['f1_cuport']
-    if 'f1_duport' in request.POST and request.POST['f1_duport']:
-        current_values['config']['f1duPort'] = request.POST['f1_duport']
-    if 'n2_int' in request.POST and request.POST['n2_int']:
-        current_values['multus']['n2Interface']['IPadd'] = request.POST['n2_int']
-    if 'n3_int' in request.POST and request.POST['n3_int']:
-        current_values['multus']['n3Interface']['IPadd'] = request.POST['n3_int']
-    if 'mcc' in request.POST and request.POST['mcc']:
-        current_values['config']['mcc'] = request.POST['mcc']
-    if 'mnc' in request.POST and request.POST['mnc']:
-        current_values['config']['mnc'] = request.POST['mnc']
-    if 'tac' in request.POST and request.POST['tac']:
-        current_values['config']['tac'] = request.POST['tac']
-    if 'sst' in request.POST and request.POST['sst']:
-        current_values['config']['sst'] = request.POST['sst']
-    if 'amf_host' in request.POST and request.POST['amf_host']:
-        current_values['config']['amfhost'] = request.POST['amf_host']
-    
-    # Convert updated values back to YAML string
-    updated_values_yaml = yaml.dump(current_values)
+    # Iterate over expected fields and update if provided in JSON body
+    expected_fields = {
+        'cu_id': ['config', 'cuId'],
+        'cell_id': ['config', 'cellId'],
+        'f1_int': ['multus', 'f1Interface', 'IPadd'],
+        'f1_cuport': ['config', 'f1cuPort'],
+        'f1_duport': ['config', 'f1duPort'],
+        'n2_int': ['multus', 'n2Interface', 'IPadd'],
+        'n3_int': ['multus', 'n3Interface', 'IPadd'],
+        'mcc': ['config', 'mcc'],
+        'mnc': ['config', 'mnc'],
+        'tac': ['config', 'tac'],
+        'sst': ['config', 'sst'],
+        'amf_host': ['config', 'amfhost']
+    }
 
-    # Use a temporary file to pass the updated values to the helm upgrade command
+    # Update the current_values based on the provided JSON data
+    for field, path in expected_fields.items():
+        value = request.data.get(field)
+        if value:
+            target = current_values
+            for key in path[:-1]:
+                target = target.setdefault(key, {})
+            target[path[-1]] = value
+
+    # Save the updated values to a YAML file
+    updated_values_yaml = yaml.dump(current_values)
     with open('updated_values.yaml', 'w') as temp_file:
         temp_file.write(updated_values_yaml)
-    
+
     # Execute Helm upgrade command with the updated values
     upgrade_command = [
         "helm", "upgrade", "single-cu", SINGLE_CU_BASE_DIR,
@@ -786,35 +784,37 @@ def config_single_cu(request):
 def config_single_du(request):
     namespace = f"{request.user.username}"
 
+    # Get the current configuration from Helm
     get_values_command = ["helm", "get", "values", "single-du", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
-    # Check if each field is provided in the form and update accordingly
-    if 'gnb_id' in request.POST and request.POST['gnb_id']:
-        current_values['config']['gnbId'] = request.POST['gnb_id']
-    if 'du_id' in request.POST and request.POST['du_id']:
-        current_values['config']['duId'] = request.POST['du_id']
-    if 'cell_id' in request.POST and request.POST['cell_id']:
-        current_values['config']['cellId'] = request.POST['cell_id']
-    if 'f1_int' in request.POST and request.POST['f1_int']:
-        current_values['multus']['f1Interface']['IPadd'] = request.POST['f1_int']
-    if 'f1_cuport' in request.POST and request.POST['f1_cuport']:
-        current_values['config']['f1cuPort'] = request.POST['f1_cuport']
-    if 'f1_duport' in request.POST and request.POST['f1_duport']:
-        current_values['config']['f1duPort'] = request.POST['f1_duport']
-    if 'mcc' in request.POST and request.POST['mcc']:
-        current_values['config']['mcc'] = request.POST['mcc']
-    if 'mnc' in request.POST and request.POST['mnc']:
-        current_values['config']['mnc'] = request.POST['mnc']
-    if 'tac' in request.POST and request.POST['tac']:
-        current_values['config']['tac'] = request.POST['tac']
-    if 'sst' in request.POST and request.POST['sst']:
-        current_values['config']['sst'] = request.POST['sst']
-    if 'usrp' in request.POST and request.POST['usrp']:
-        current_values['config']['usrp'] = request.POST['usrp']
-    if 'cu_host' in request.POST and request.POST['cu_host']:
-        current_values['config']['cuHost'] = request.POST['cu_host']
+    # Dictionary to map JSON keys to their path in the YAML data structure
+    field_mappings = {
+        'gnb_id': ['config', 'gnbId'],
+        'du_id': ['config', 'duId'],
+        'cell_id': ['config', 'cellId'],
+        'f1_int': ['multus', 'f1Interface', 'IPadd'],
+        'f1_cuport': ['config', 'f1cuPort'],
+        'f1_duport': ['config', 'f1duPort'],
+        'mcc': ['config', 'mcc'],
+        'mnc': ['config', 'mnc'],
+        'tac': ['config', 'tac'],
+        'sst': ['config', 'sst'],
+        'usrp': ['config', 'usrp'],
+        'cu_host': ['config', 'cuHost']
+    }
+
+    # Update the YAML data structure based on the provided JSON data
+    for field, path in field_mappings.items():
+        # Check if the field is provided and not empty
+        value = request.data.get(field)
+        if value:
+            # Navigate through the path to set the value
+            target = current_values
+            for key in path[:-1]:
+                target = target.setdefault(key, {})
+            target[path[-1]] = value
     
     # Convert updated values back to YAML string
     updated_values_yaml = yaml.dump(current_values)
@@ -840,29 +840,34 @@ def config_single_du(request):
 def config_single_ue(request):
     namespace = f"{request.user.username}"
 
+    # Get the current configuration from Helm
     get_values_command = ["helm", "get", "values", "single-ue", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
-    # Check if each field is provided in the form and update accordingly
-    if 'multus_ipadd' in request.POST and request.POST['multus_ipadd']:
-        current_values['multus']['ipadd'] = request.POST['multus_ipadd']
-    if 'rfsimserver' in request.POST and request.POST['rfsimserver']:
-        current_values['config']['rfSimServer'] = request.POST['rfsimserver']
-    if 'fullimsi' in request.POST and request.POST['fullimsi']:
-        current_values['config']['fullImsi'] = request.POST['fullimsi']
-    if 'fullkey' in request.POST and request.POST['fullkey']:
-        current_values['config']['fullKey'] = request.POST['fullkey']
-    if 'opc' in request.POST and request.POST['opc']:
-        current_values['config']['opc'] = request.POST['opc']
-    if 'dnn' in request.POST and request.POST['dnn']:
-        current_values['config']['dnn'] = request.POST['dnn']
-    if 'sst' in request.POST and request.POST['sst']:
-        current_values['config']['sst'] = request.POST['sst']
-    if 'sd' in request.POST and request.POST['sd']:
-        current_values['config']['sd'] = request.POST['sd']
-    if 'usrp' in request.POST and request.POST['usrp']:
-        current_values['config']['usrp'] = request.POST['usrp']
+    # Dictionary to map JSON keys to their path in the YAML data structure
+    field_mappings = {
+        'multus_ipadd': ['multus', 'ipadd'],
+        'rfsimserver': ['config', 'rfSimServer'],
+        'fullimsi': ['config', 'fullImsi'],
+        'fullkey': ['config', 'fullKey'],
+        'opc': ['config', 'opc'],
+        'dnn': ['config', 'dnn'],
+        'sst': ['config', 'sst'],
+        'sd': ['config', 'sd'],
+        'usrp': ['config', 'usrp']
+    }
+
+    # Update the YAML data structure based on the provided JSON data
+    for field, path in field_mappings.items():
+        # Check if the field is provided and not empty
+        value = request.data.get(field)
+        if value:
+            # Navigate through the path to set the value
+            target = current_values
+            for key in path[:-1]:
+                target = target.setdefault(key, {})
+            target[path[-1]] = value
     
     # Convert updated values back to YAML string
     updated_values_yaml = yaml.dump(current_values)
@@ -889,35 +894,35 @@ def config_single_ue(request):
 def config_multignb_cu(request):
     namespace = f"{request.user.username}"
 
+    # Get current values
     get_values_command = ["helm", "get", "values", "multignb-cu", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
-    # Check if each field is provided in the form and update accordingly
-    if 'cu_id' in request.POST and request.POST['cu_id']:
-        current_values['config']['cuId'] = request.POST['cu_id']
-    if 'cell_id' in request.POST and request.POST['cell_id']:
-        current_values['config']['cellId'] = request.POST['cell_id']
-    if 'f1_int' in request.POST and request.POST['f1_int']:
-        current_values['multus']['f1Interface']['IPadd'] = request.POST['f1_int']
-    if 'f1_cuport' in request.POST and request.POST['f1_cuport']:
-        current_values['config']['f1cuPort'] = request.POST['f1_cuport']
-    if 'f1_duport' in request.POST and request.POST['f1_duport']:
-        current_values['config']['f1duPort'] = request.POST['f1_duport']
-    if 'n2_int' in request.POST and request.POST['n2_int']:
-        current_values['multus']['n2Interface']['IPadd'] = request.POST['n2_int']
-    if 'n3_int' in request.POST and request.POST['n3_int']:
-        current_values['multus']['n3Interface']['IPadd'] = request.POST['n3_int']
-    if 'mcc' in request.POST and request.POST['mcc']:
-        current_values['config']['mcc'] = request.POST['mcc']
-    if 'mnc' in request.POST and request.POST['mnc']:
-        current_values['config']['mnc'] = request.POST['mnc']
-    if 'tac' in request.POST and request.POST['tac']:
-        current_values['config']['tac'] = request.POST['tac']
-    if 'sst' in request.POST and request.POST['sst']:
-        current_values['config']['sst'] = request.POST['sst']
-    if 'amf_host' in request.POST and request.POST['amf_host']:
-        current_values['config']['amfhost'] = request.POST['amf_host']
+    # Iterate over expected fields and update if provided in JSON body
+    expected_fields = {
+        'cu_id': ['config', 'cuId'],
+        'cell_id': ['config', 'cellId'],
+        'f1_int': ['multus', 'f1Interface', 'IPadd'],
+        'f1_cuport': ['config', 'f1cuPort'],
+        'f1_duport': ['config', 'f1duPort'],
+        'n2_int': ['multus', 'n2Interface', 'IPadd'],
+        'n3_int': ['multus', 'n3Interface', 'IPadd'],
+        'mcc': ['config', 'mcc'],
+        'mnc': ['config', 'mnc'],
+        'tac': ['config', 'tac'],
+        'sst': ['config', 'sst'],
+        'amf_host': ['config', 'amfhost']
+    }
+
+    # Update the current_values based on the provided JSON data
+    for field, path in expected_fields.items():
+        value = request.data.get(field)
+        if value:
+            target = current_values
+            for key in path[:-1]:
+                target = target.setdefault(key, {})
+            target[path[-1]] = value
     
     # Convert updated values back to YAML string
     updated_values_yaml = yaml.dump(current_values)
@@ -943,38 +948,39 @@ def config_multignb_cu(request):
 def config_multignb_du1(request):
     namespace = f"{request.user.username}"
 
+    # Get the current configuration from Helm
     get_values_command = ["helm", "get", "values", "multignb-du1", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
-    # Check if each field is provided in the form and update accordingly
-    if 'gnb_id' in request.POST and request.POST['gnb_id']:
-        current_values['config']['gnbId'] = request.POST['gnb_id']
-    if 'du_id' in request.POST and request.POST['du_id']:
-        current_values['config']['duId'] = request.POST['du_id']
-    if 'cell_id' in request.POST and request.POST['cell_id']:
-        current_values['config']['cellId'] = request.POST['cell_id']
-    if 'phycell_id' in request.POST and request.POST['phycell_id']:
-        current_values['config']['phyCellId'] = request.POST['phycell_id']
-    if 'f1_int' in request.POST and request.POST['f1_int']:
-        current_values['multus']['f1Interface']['IPadd'] = request.POST['f1_int']
-    if 'f1_cuport' in request.POST and request.POST['f1_cuport']:
-        current_values['config']['f1cuPort'] = request.POST['f1_cuport']
-    if 'f1_duport' in request.POST and request.POST['f1_duport']:
-        current_values['config']['f1duPort'] = request.POST['f1_duport']
-    if 'mcc' in request.POST and request.POST['mcc']:
-        current_values['config']['mcc'] = request.POST['mcc']
-    if 'mnc' in request.POST and request.POST['mnc']:
-        current_values['config']['mnc'] = request.POST['mnc']
-    if 'tac' in request.POST and request.POST['tac']:
-        current_values['config']['tac'] = request.POST['tac']
-    if 'sst' in request.POST and request.POST['sst']:
-        current_values['config']['sst'] = request.POST['sst']
-    if 'usrp' in request.POST and request.POST['usrp']:
-        current_values['config']['usrp'] = request.POST['usrp']
-    if 'cu_host' in request.POST and request.POST['cu_host']:
-        current_values['config']['cuHost'] = request.POST['cu_host']
-    
+    # Dictionary to map JSON keys to their path in the YAML data structure
+    field_mappings = {
+        'gnb_id': ['config', 'gnbId'],
+        'du_id': ['config', 'duId'],
+        'cell_id': ['config', 'cellId'],
+        'phycell_id': ['config', 'phyCellId'],
+        'f1_int': ['multus', 'f1Interface', 'IPadd'],
+        'f1_cuport': ['config', 'f1cuPort'],
+        'f1_duport': ['config', 'f1duPort'],
+        'mcc': ['config', 'mcc'],
+        'mnc': ['config', 'mnc'],
+        'tac': ['config', 'tac'],
+        'sst': ['config', 'sst'],
+        'usrp': ['config', 'usrp'],
+        'cu_host': ['config', 'cuHost']
+    }
+
+    # Update the YAML data structure based on the provided JSON data
+    for field, path in field_mappings.items():
+        # Check if the field is provided and not empty
+        value = request.data.get(field)
+        if value:
+            # Navigate through the path to set the value
+            target = current_values
+            for key in path[:-1]:
+                target = target.setdefault(key, {})
+            target[path[-1]] = value
+
     # Convert updated values back to YAML string
     updated_values_yaml = yaml.dump(current_values)
 
@@ -999,37 +1005,38 @@ def config_multignb_du1(request):
 def config_multignb_du2(request):
     namespace = f"{request.user.username}"
 
+    # Get the current configuration from Helm
     get_values_command = ["helm", "get", "values", "multignb-du2", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
-    # Check if each field is provided in the form and update accordingly
-    if 'gnb_id' in request.POST and request.POST['gnb_id']:
-        current_values['config']['gnbId'] = request.POST['gnb_id']
-    if 'du_id' in request.POST and request.POST['du_id']:
-        current_values['config']['duId'] = request.POST['du_id']
-    if 'cell_id' in request.POST and request.POST['cell_id']:
-        current_values['config']['cellId'] = request.POST['cell_id']
-    if 'phycell_id' in request.POST and request.POST['phycell_id']:
-        current_values['config']['phyCellId'] = request.POST['phycell_id']
-    if 'f1_int' in request.POST and request.POST['f1_int']:
-        current_values['multus']['f1Interface']['IPadd'] = request.POST['f1_int']
-    if 'f1_cuport' in request.POST and request.POST['f1_cuport']:
-        current_values['config']['f1cuPort'] = request.POST['f1_cuport']
-    if 'f1_duport' in request.POST and request.POST['f1_duport']:
-        current_values['config']['f1duPort'] = request.POST['f1_duport']
-    if 'mcc' in request.POST and request.POST['mcc']:
-        current_values['config']['mcc'] = request.POST['mcc']
-    if 'mnc' in request.POST and request.POST['mnc']:
-        current_values['config']['mnc'] = request.POST['mnc']
-    if 'tac' in request.POST and request.POST['tac']:
-        current_values['config']['tac'] = request.POST['tac']
-    if 'sst' in request.POST and request.POST['sst']:
-        current_values['config']['sst'] = request.POST['sst']
-    if 'usrp' in request.POST and request.POST['usrp']:
-        current_values['config']['usrp'] = request.POST['usrp']
-    if 'cu_host' in request.POST and request.POST['cu_host']:
-        current_values['config']['cuHost'] = request.POST['cu_host']
+    # Dictionary to map JSON keys to their path in the YAML data structure
+    field_mappings = {
+        'gnb_id': ['config', 'gnbId'],
+        'du_id': ['config', 'duId'],
+        'cell_id': ['config', 'cellId'],
+        'phycell_id': ['config', 'phyCellId'],
+        'f1_int': ['multus', 'f1Interface', 'IPadd'],
+        'f1_cuport': ['config', 'f1cuPort'],
+        'f1_duport': ['config', 'f1duPort'],
+        'mcc': ['config', 'mcc'],
+        'mnc': ['config', 'mnc'],
+        'tac': ['config', 'tac'],
+        'sst': ['config', 'sst'],
+        'usrp': ['config', 'usrp'],
+        'cu_host': ['config', 'cuHost']
+    }
+
+    # Update the YAML data structure based on the provided JSON data
+    for field, path in field_mappings.items():
+        # Check if the field is provided and not empty
+        value = request.data.get(field)
+        if value:
+            # Navigate through the path to set the value
+            target = current_values
+            for key in path[:-1]:
+                target = target.setdefault(key, {})
+            target[path[-1]] = value
     
     # Convert updated values back to YAML string
     updated_values_yaml = yaml.dump(current_values)
@@ -1055,29 +1062,34 @@ def config_multignb_du2(request):
 def config_multignb_ue1(request):
     namespace = f"{request.user.username}"
 
+    # Get the current configuration from Helm
     get_values_command = ["helm", "get", "values", "multignb-ue1", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
-    # Check if each field is provided in the form and update accordingly
-    if 'multus_ipadd' in request.POST and request.POST['multus_ipadd']:
-        current_values['multus']['ipadd'] = request.POST['multus_ipadd']
-    if 'rfsimserver' in request.POST and request.POST['rfsimserver']:
-        current_values['config']['rfSimServer'] = request.POST['rfsimserver']
-    if 'fullimsi' in request.POST and request.POST['fullimsi']:
-        current_values['config']['fullImsi'] = request.POST['fullimsi']
-    if 'fullkey' in request.POST and request.POST['fullkey']:
-        current_values['config']['fullKey'] = request.POST['fullkey']
-    if 'opc' in request.POST and request.POST['opc']:
-        current_values['config']['opc'] = request.POST['opc']
-    if 'dnn' in request.POST and request.POST['dnn']:
-        current_values['config']['dnn'] = request.POST['dnn']
-    if 'sst' in request.POST and request.POST['sst']:
-        current_values['config']['sst'] = request.POST['sst']
-    if 'sd' in request.POST and request.POST['sd']:
-        current_values['config']['sd'] = request.POST['sd']
-    if 'usrp' in request.POST and request.POST['usrp']:
-        current_values['config']['usrp'] = request.POST['usrp']
+    # Dictionary to map JSON keys to their path in the YAML data structure
+    field_mappings = {
+        'multus_ipadd': ['multus', 'ipadd'],
+        'rfsimserver': ['config', 'rfSimServer'],
+        'fullimsi': ['config', 'fullImsi'],
+        'fullkey': ['config', 'fullKey'],
+        'opc': ['config', 'opc'],
+        'dnn': ['config', 'dnn'],
+        'sst': ['config', 'sst'],
+        'sd': ['config', 'sd'],
+        'usrp': ['config', 'usrp']
+    }
+
+    # Update the YAML data structure based on the provided JSON data
+    for field, path in field_mappings.items():
+        # Check if the field is provided and not empty
+        value = request.data.get(field)
+        if value:
+            # Navigate through the path to set the value
+            target = current_values
+            for key in path[:-1]:
+                target = target.setdefault(key, {})
+            target[path[-1]] = value
     
     # Convert updated values back to YAML string
     updated_values_yaml = yaml.dump(current_values)
@@ -1103,29 +1115,34 @@ def config_multignb_ue1(request):
 def config_multignb_ue2(request):
     namespace = f"{request.user.username}"
 
+    # Get the current configuration from Helm
     get_values_command = ["helm", "get", "values", "multignb-ue2", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
-    # Check if each field is provided in the form and update accordingly
-    if 'multus_ipadd' in request.POST and request.POST['multus_ipadd']:
-        current_values['multus']['ipadd'] = request.POST['multus_ipadd']
-    if 'rfsimserver' in request.POST and request.POST['rfsimserver']:
-        current_values['config']['rfSimServer'] = request.POST['rfsimserver']
-    if 'fullimsi' in request.POST and request.POST['fullimsi']:
-        current_values['config']['fullImsi'] = request.POST['fullimsi']
-    if 'fullkey' in request.POST and request.POST['fullkey']:
-        current_values['config']['fullKey'] = request.POST['fullkey']
-    if 'opc' in request.POST and request.POST['opc']:
-        current_values['config']['opc'] = request.POST['opc']
-    if 'dnn' in request.POST and request.POST['dnn']:
-        current_values['config']['dnn'] = request.POST['dnn']
-    if 'sst' in request.POST and request.POST['sst']:
-        current_values['config']['sst'] = request.POST['sst']
-    if 'sd' in request.POST and request.POST['sd']:
-        current_values['config']['sd'] = request.POST['sd']
-    if 'usrp' in request.POST and request.POST['usrp']:
-        current_values['config']['usrp'] = request.POST['usrp']
+    # Dictionary to map JSON keys to their path in the YAML data structure
+    field_mappings = {
+        'multus_ipadd': ['multus', 'ipadd'],
+        'rfsimserver': ['config', 'rfSimServer'],
+        'fullimsi': ['config', 'fullImsi'],
+        'fullkey': ['config', 'fullKey'],
+        'opc': ['config', 'opc'],
+        'dnn': ['config', 'dnn'],
+        'sst': ['config', 'sst'],
+        'sd': ['config', 'sd'],
+        'usrp': ['config', 'usrp']
+    }
+
+    # Update the YAML data structure based on the provided JSON data
+    for field, path in field_mappings.items():
+        # Check if the field is provided and not empty
+        value = request.data.get(field)
+        if value:
+            # Navigate through the path to set the value
+            target = current_values
+            for key in path[:-1]:
+                target = target.setdefault(key, {})
+            target[path[-1]] = value
     
     # Convert updated values back to YAML string
     updated_values_yaml = yaml.dump(current_values)
@@ -1152,35 +1169,35 @@ def config_multignb_ue2(request):
 def config_multiue_cu(request):
     namespace = f"{request.user.username}"
 
+    # Get current values
     get_values_command = ["helm", "get", "values", "multiue-cu", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
-    # Check if each field is provided in the form and update accordingly
-    if 'cu_id' in request.POST and request.POST['cu_id']:
-        current_values['config']['cuId'] = request.POST['cu_id']
-    if 'cell_id' in request.POST and request.POST['cell_id']:
-        current_values['config']['cellId'] = request.POST['cell_id']
-    if 'f1_int' in request.POST and request.POST['f1_int']:
-        current_values['multus']['f1Interface']['IPadd'] = request.POST['f1_int']
-    if 'f1_cuport' in request.POST and request.POST['f1_cuport']:
-        current_values['config']['f1cuPort'] = request.POST['f1_cuport']
-    if 'f1_duport' in request.POST and request.POST['f1_duport']:
-        current_values['config']['f1duPort'] = request.POST['f1_duport']
-    if 'n2_int' in request.POST and request.POST['n2_int']:
-        current_values['multus']['n2Interface']['IPadd'] = request.POST['n2_int']
-    if 'n3_int' in request.POST and request.POST['n3_int']:
-        current_values['multus']['n3Interface']['IPadd'] = request.POST['n3_int']
-    if 'mcc' in request.POST and request.POST['mcc']:
-        current_values['config']['mcc'] = request.POST['mcc']
-    if 'mnc' in request.POST and request.POST['mnc']:
-        current_values['config']['mnc'] = request.POST['mnc']
-    if 'tac' in request.POST and request.POST['tac']:
-        current_values['config']['tac'] = request.POST['tac']
-    if 'sst' in request.POST and request.POST['sst']:
-        current_values['config']['sst'] = request.POST['sst']
-    if 'amf_host' in request.POST and request.POST['amf_host']:
-        current_values['config']['amfhost'] = request.POST['amf_host']
+    # Iterate over expected fields and update if provided in JSON body
+    expected_fields = {
+        'cu_id': ['config', 'cuId'],
+        'cell_id': ['config', 'cellId'],
+        'f1_int': ['multus', 'f1Interface', 'IPadd'],
+        'f1_cuport': ['config', 'f1cuPort'],
+        'f1_duport': ['config', 'f1duPort'],
+        'n2_int': ['multus', 'n2Interface', 'IPadd'],
+        'n3_int': ['multus', 'n3Interface', 'IPadd'],
+        'mcc': ['config', 'mcc'],
+        'mnc': ['config', 'mnc'],
+        'tac': ['config', 'tac'],
+        'sst': ['config', 'sst'],
+        'amf_host': ['config', 'amfhost']
+    }
+
+    # Update the current_values based on the provided JSON data
+    for field, path in expected_fields.items():
+        value = request.data.get(field)
+        if value:
+            target = current_values
+            for key in path[:-1]:
+                target = target.setdefault(key, {})
+            target[path[-1]] = value
     
     # Convert updated values back to YAML string
     updated_values_yaml = yaml.dump(current_values)
@@ -1206,35 +1223,37 @@ def config_multiue_cu(request):
 def config_multiue_du(request):
     namespace = f"{request.user.username}"
 
+    # Get the current configuration from Helm
     get_values_command = ["helm", "get", "values", "multiue-du", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
-    # Check if each field is provided in the form and update accordingly
-    if 'gnb_id' in request.POST and request.POST['gnb_id']:
-        current_values['config']['gnbId'] = request.POST['gnb_id']
-    if 'du_id' in request.POST and request.POST['du_id']:
-        current_values['config']['duId'] = request.POST['du_id']
-    if 'cell_id' in request.POST and request.POST['cell_id']:
-        current_values['config']['cellId'] = request.POST['cell_id']
-    if 'f1_int' in request.POST and request.POST['f1_int']:
-        current_values['multus']['f1Interface']['IPadd'] = request.POST['f1_int']
-    if 'f1_cuport' in request.POST and request.POST['f1_cuport']:
-        current_values['config']['f1cuPort'] = request.POST['f1_cuport']
-    if 'f1_duport' in request.POST and request.POST['f1_duport']:
-        current_values['config']['f1duPort'] = request.POST['f1_duport']
-    if 'mcc' in request.POST and request.POST['mcc']:
-        current_values['config']['mcc'] = request.POST['mcc']
-    if 'mnc' in request.POST and request.POST['mnc']:
-        current_values['config']['mnc'] = request.POST['mnc']
-    if 'tac' in request.POST and request.POST['tac']:
-        current_values['config']['tac'] = request.POST['tac']
-    if 'sst' in request.POST and request.POST['sst']:
-        current_values['config']['sst'] = request.POST['sst']
-    if 'usrp' in request.POST and request.POST['usrp']:
-        current_values['config']['usrp'] = request.POST['usrp']
-    if 'cu_host' in request.POST and request.POST['cu_host']:
-        current_values['config']['cuHost'] = request.POST['cu_host']
+    # Dictionary to map JSON keys to their path in the YAML data structure
+    field_mappings = {
+        'gnb_id': ['config', 'gnbId'],
+        'du_id': ['config', 'duId'],
+        'cell_id': ['config', 'cellId'],
+        'f1_int': ['multus', 'f1Interface', 'IPadd'],
+        'f1_cuport': ['config', 'f1cuPort'],
+        'f1_duport': ['config', 'f1duPort'],
+        'mcc': ['config', 'mcc'],
+        'mnc': ['config', 'mnc'],
+        'tac': ['config', 'tac'],
+        'sst': ['config', 'sst'],
+        'usrp': ['config', 'usrp'],
+        'cu_host': ['config', 'cuHost']
+    }
+
+    # Update the YAML data structure based on the provided JSON data
+    for field, path in field_mappings.items():
+        # Check if the field is provided and not empty
+        value = request.data.get(field)
+        if value:
+            # Navigate through the path to set the value
+            target = current_values
+            for key in path[:-1]:
+                target = target.setdefault(key, {})
+            target[path[-1]] = value
     
     # Convert updated values back to YAML string
     updated_values_yaml = yaml.dump(current_values)
@@ -1260,29 +1279,34 @@ def config_multiue_du(request):
 def config_multiue_ue1(request):
     namespace = f"{request.user.username}"
 
+    # Get the current configuration from Helm
     get_values_command = ["helm", "get", "values", "multiue-ue1", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
-    # Check if each field is provided in the form and update accordingly
-    if 'multus_ipadd' in request.POST and request.POST['multus_ipadd']:
-        current_values['multus']['ipadd'] = request.POST['multus_ipadd']
-    if 'rfsimserver' in request.POST and request.POST['rfsimserver']:
-        current_values['config']['rfSimServer'] = request.POST['rfsimserver']
-    if 'fullimsi' in request.POST and request.POST['fullimsi']:
-        current_values['config']['fullImsi'] = request.POST['fullimsi']
-    if 'fullkey' in request.POST and request.POST['fullkey']:
-        current_values['config']['fullKey'] = request.POST['fullkey']
-    if 'opc' in request.POST and request.POST['opc']:
-        current_values['config']['opc'] = request.POST['opc']
-    if 'dnn' in request.POST and request.POST['dnn']:
-        current_values['config']['dnn'] = request.POST['dnn']
-    if 'sst' in request.POST and request.POST['sst']:
-        current_values['config']['sst'] = request.POST['sst']
-    if 'sd' in request.POST and request.POST['sd']:
-        current_values['config']['sd'] = request.POST['sd']
-    if 'usrp' in request.POST and request.POST['usrp']:
-        current_values['config']['usrp'] = request.POST['usrp']
+    # Dictionary to map JSON keys to their path in the YAML data structure
+    field_mappings = {
+        'multus_ipadd': ['multus', 'ipadd'],
+        'rfsimserver': ['config', 'rfSimServer'],
+        'fullimsi': ['config', 'fullImsi'],
+        'fullkey': ['config', 'fullKey'],
+        'opc': ['config', 'opc'],
+        'dnn': ['config', 'dnn'],
+        'sst': ['config', 'sst'],
+        'sd': ['config', 'sd'],
+        'usrp': ['config', 'usrp']
+    }
+
+    # Update the YAML data structure based on the provided JSON data
+    for field, path in field_mappings.items():
+        # Check if the field is provided and not empty
+        value = request.data.get(field)
+        if value:
+            # Navigate through the path to set the value
+            target = current_values
+            for key in path[:-1]:
+                target = target.setdefault(key, {})
+            target[path[-1]] = value
     
     # Convert updated values back to YAML string
     updated_values_yaml = yaml.dump(current_values)
@@ -1308,29 +1332,34 @@ def config_multiue_ue1(request):
 def config_multiue_ue2(request):
     namespace = f"{request.user.username}"
 
+    # Get the current configuration from Helm
     get_values_command = ["helm", "get", "values", "multiue-ue2", "--namespace", namespace, "--output", "yaml"]
     current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
-    # Check if each field is provided in the form and update accordingly
-    if 'multus_ipadd' in request.POST and request.POST['multus_ipadd']:
-        current_values['multus']['ipadd'] = request.POST['multus_ipadd']
-    if 'rfsimserver' in request.POST and request.POST['rfsimserver']:
-        current_values['config']['rfSimServer'] = request.POST['rfsimserver']
-    if 'fullimsi' in request.POST and request.POST['fullimsi']:
-        current_values['config']['fullImsi'] = request.POST['fullimsi']
-    if 'fullkey' in request.POST and request.POST['fullkey']:
-        current_values['config']['fullKey'] = request.POST['fullkey']
-    if 'opc' in request.POST and request.POST['opc']:
-        current_values['config']['opc'] = request.POST['opc']
-    if 'dnn' in request.POST and request.POST['dnn']:
-        current_values['config']['dnn'] = request.POST['dnn']
-    if 'sst' in request.POST and request.POST['sst']:
-        current_values['config']['sst'] = request.POST['sst']
-    if 'sd' in request.POST and request.POST['sd']:
-        current_values['config']['sd'] = request.POST['sd']
-    if 'usrp' in request.POST and request.POST['usrp']:
-        current_values['config']['usrp'] = request.POST['usrp']
+    # Dictionary to map JSON keys to their path in the YAML data structure
+    field_mappings = {
+        'multus_ipadd': ['multus', 'ipadd'],
+        'rfsimserver': ['config', 'rfSimServer'],
+        'fullimsi': ['config', 'fullImsi'],
+        'fullkey': ['config', 'fullKey'],
+        'opc': ['config', 'opc'],
+        'dnn': ['config', 'dnn'],
+        'sst': ['config', 'sst'],
+        'sd': ['config', 'sd'],
+        'usrp': ['config', 'usrp']
+    }
+
+    # Update the YAML data structure based on the provided JSON data
+    for field, path in field_mappings.items():
+        # Check if the field is provided and not empty
+        value = request.data.get(field)
+        if value:
+            # Navigate through the path to set the value
+            target = current_values
+            for key in path[:-1]:
+                target = target.setdefault(key, {})
+            target[path[-1]] = value
     
     # Convert updated values back to YAML string
     updated_values_yaml = yaml.dump(current_values)
