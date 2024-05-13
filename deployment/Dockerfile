@@ -1,4 +1,4 @@
-FROM quay.tiplab.local/openetra/ubuntu:jammy
+FROM ubuntu:jammy
 
 LABEL maintainer="gintingari73@gmail.com"
 
@@ -8,7 +8,7 @@ WORKDIR /install
 ENV TZ=Asia/Bangkok
 ENV KUBECONFIG=/app/deployment/kube-config
 RUN echo 'wireshark-common wireshark-common/install-setuid boolean true' | debconf-set-selections && \
-    apt update && apt install python3 python3-pip curl wget unzip make git tshark wireshark -y && \
+    apt-get update && apt-get install -y python3 python3-pip curl wget unzip make git tshark wireshark && \
     pip install --no-cache-dir -r /app/requirements.txt && \
     curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && \
     chmod +x ./kubectl && chmod go-r $KUBECONFIG && \
