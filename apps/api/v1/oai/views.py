@@ -1387,7 +1387,7 @@ def start_single_cu(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-cu-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-cu-level1-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
@@ -1404,7 +1404,7 @@ def start_single_du(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-du-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-du-level1-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
@@ -1421,7 +1421,7 @@ def start_single_ue(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-nr-ue-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-nr-ue-level1-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
@@ -1438,7 +1438,7 @@ def start_multignb_cu(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-cu-mdu-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-cu-level2-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
@@ -1455,7 +1455,7 @@ def start_multignb_du1(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-du-mdu-1-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-du1-level2-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
@@ -1472,7 +1472,7 @@ def start_multignb_du2(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-du-mdu-2-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-du2-level2-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
@@ -1489,7 +1489,7 @@ def start_multignb_ue1(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-nr-ue-mdu-1-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-nr-ue1-level2-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
@@ -1506,7 +1506,7 @@ def start_multignb_ue2(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-nr-ue-mdu-2-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-nr-ue2-level2-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
@@ -1523,7 +1523,7 @@ def start_multiue_cu(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-cu-mue-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-cu-level3-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
@@ -1540,7 +1540,7 @@ def start_multiue_du(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-du-mue-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-du-level3-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
@@ -1557,7 +1557,7 @@ def start_multiue_ue1(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-nr-ue-mue-1-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-nr-ue1-level3-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
@@ -1574,7 +1574,7 @@ def start_multiue_ue2(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-nr-ue-mue-2-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-nr-ue2-level3-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
@@ -1592,7 +1592,7 @@ def stop_single_cu(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-cu-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-cu-level1-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
@@ -1609,7 +1609,7 @@ def stop_single_du(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-du-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-du-level1-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
@@ -1626,7 +1626,7 @@ def stop_single_ue(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-nr-ue-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-nr-ue-level1-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
@@ -1643,7 +1643,7 @@ def stop_multignb_cu(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-cu-mdu-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-cu-level2-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
@@ -1660,7 +1660,7 @@ def stop_multignb_du1(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-du-mdu-1-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-du1-level2-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
@@ -1677,7 +1677,7 @@ def stop_multignb_du2(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-du-mdu-2-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-du2-level2-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
@@ -1694,7 +1694,7 @@ def stop_multignb_ue1(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-nr-ue-mdu-1-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-nr-ue1-level2-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
@@ -1711,7 +1711,7 @@ def stop_multignb_ue2(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-nr-ue-mdu-2-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-nr-ue2-level2-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
@@ -1728,7 +1728,7 @@ def stop_multiue_cu(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-cu-mue-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-cu-level3-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
@@ -1745,7 +1745,7 @@ def stop_multiue_du(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-du-mue-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-du-level3-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
@@ -1762,7 +1762,7 @@ def stop_multiue_ue1(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-nr-ue-mue-1-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-nr-ue1-level3-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
@@ -1779,7 +1779,7 @@ def stop_multiue_ue2(request):
     try:
         username = request.user.username  # Get the currently logged-in user's username
         namespace = f"{username}"  # Construct the namespace based on the username
-        deployment_name = f"oai-nr-ue-mue-2-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-nr-ue1-level3-{username}"  # Dynamically create the deployment name
 
         subprocess.run([
             "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
