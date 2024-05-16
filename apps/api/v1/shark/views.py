@@ -52,7 +52,7 @@ def capture_packets(request):
 
     return JsonResponse({'packets': packets_summary}, safe=False)
 
-@api_view(['POST'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def capture_and_return_packets(request, pod_name):
     namespace = f"{request.user.username}"
