@@ -115,7 +115,7 @@ def restart_single_cu(request):
     try:
         # Derive the namespace from the current user's username
         namespace = f"{request.user.username}"
-        deployment_name = f"oai-cu-level1-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-cu-level1-{namespace}"  # Dynamically create the deployment name
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", deployment_name, "--namespace", namespace],
@@ -134,7 +134,7 @@ def restart_single_du(request):
     try:
         # Derive the namespace from the current user's username
         namespace = f"{request.user.username}"
-        deployment_name = f"oai-du-level1-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-du-level1-{namespace}"  # Dynamically create the deployment name
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", deployment_name, "--namespace", namespace],
@@ -153,7 +153,7 @@ def restart_single_ue(request):
     try:
         # Derive the namespace from the current user's username
         namespace = f"{request.user.username}"
-        deployment_name = f"oai-nr-ue-level1-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-nr-ue-level1-{namespace}"  # Dynamically create the deployment name
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", deployment_name, "--namespace", namespace],
@@ -172,7 +172,7 @@ def restart_multignb_cu(request):
     try:
         # Derive the namespace from the current user's username
         namespace = f"{request.user.username}"
-        deployment_name = f"oai-cu-level2-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-cu-level2-{namespace}"  # Dynamically create the deployment name
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", deployment_name, "--namespace", namespace],
@@ -191,7 +191,7 @@ def restart_multignb_du1(request):
     try:
         # Derive the namespace from the current user's username
         namespace = f"{request.user.username}"
-        deployment_name = f"oai-du1-level2-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-du1-level2-{namespace}"  # Dynamically create the deployment name
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", deployment_name, "--namespace", namespace],
@@ -210,7 +210,7 @@ def restart_multignb_du2(request):
     try:
         # Derive the namespace from the current user's username
         namespace = f"{request.user.username}"
-        deployment_name = f"oai-du2-level2-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-du2-level2-{namespace}"  # Dynamically create the deployment name
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", deployment_name, "--namespace", namespace],
@@ -229,7 +229,7 @@ def restart_multignb_ue1(request):
     try:
         # Derive the namespace from the current user's username
         namespace = f"{request.user.username}"
-        deployment_name = f"oai-nr-ue1-level2-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-nr-ue1-level2-{namespace}"  # Dynamically create the deployment name
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", deployment_name, "--namespace", namespace],
@@ -248,7 +248,7 @@ def restart_multignb_ue2(request):
     try:
         # Derive the namespace from the current user's username
         namespace = f"{request.user.username}"
-        deployment_name = f"oai-nr-ue2-level2-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-nr-ue2-level2-{namespace}"  # Dynamically create the deployment name
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", deployment_name, "--namespace", namespace],
@@ -267,7 +267,7 @@ def restart_multiue_cu(request):
     try:
         # Derive the namespace from the current user's username
         namespace = f"{request.user.username}"
-        deployment_name = f"oai-cu-level3-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-cu-level3-{namespace}"  # Dynamically create the deployment name
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", deployment_name, "--namespace", namespace],
@@ -286,7 +286,7 @@ def restart_multiue_du(request):
     try:
         # Derive the namespace from the current user's username
         namespace = f"{request.user.username}"
-        deployment_name = f"oai-du-level3-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-du-level3-{namespace}"  # Dynamically create the deployment name
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", deployment_name, "--namespace", namespace],
@@ -305,7 +305,7 @@ def restart_multiue_ue1(request):
     try:
         # Derive the namespace from the current user's username
         namespace = f"{request.user.username}"
-        deployment_name = f"oai-nr-ue1-level3-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-nr-ue1-level3-{namespace}"  # Dynamically create the deployment name
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", deployment_name, "--namespace", namespace],
@@ -324,7 +324,7 @@ def restart_multiue_ue2(request):
     try:
         # Derive the namespace from the current user's username
         namespace = f"{request.user.username}"
-        deployment_name = f"oai-nr-ue2-level3-{username}"  # Dynamically create the deployment name
+        deployment_name = f"oai-nr-ue2-level3-{namespace}"  # Dynamically create the deployment name
 
         result = subprocess.run(
             ["kubectl", "rollout", "restart", "deployment", deployment_name, "--namespace", namespace],
