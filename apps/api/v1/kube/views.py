@@ -6,6 +6,7 @@ import json
 from django.http import JsonResponse
 import subprocess
 from rest_framework import status
+from apps.models import UserProfile
 
 def get_network_status_annotations():
     # Load your Kubernetes configuration, either in-cluster or from a local Kubeconfig file
@@ -379,47 +380,69 @@ def get_pod_logs(request, pod_name):
         return JsonResponse({"error": error_message}, status=400)
 
 
-def get_deployment_names(user, level):
-    base_names = [
-        'oai-cu',
-        'oai-du',
-        'oai-du1',
-        'oai-du2',
-        'oai-nr-ue',
-        'oai-nr-ue1',
-        'oai-nr-ue2'
-    ]
-    levels = ['level1', 'level2', 'level3']
-    user_deployments = []
+def get_valid_deployments(user, user_level):
+    base_names_by_level = {
+        'level1': [
+            'oai-cu',
+            'oai-du',
+            'oai-nr-ue'
+        ],
+        'level2': [
+            'oai-cu',
+            'oai-du1',
+            'oai-du2',
+            'oai-nr-ue1',
+            'oai-nr-ue2'
+        ],
+        'level3': [
+            'oai-cu',
+            'oai-du',
+            'oai-nr-ue1',
+            'oai-nr-ue2'
+        ]
+    }
 
-    for base in base_names:
-        for lvl in levels:
-            user_deployments.append(f"{base}-{lvl}-{user.username}")
+    base_names = base_names_by_level.get(f'level{user_level}', [])
+    matching_deployments = []
+    non_matching_deployments = []
 
-    return user_deployments
+    for level in ['level1', 'level2', 'level3']:
+        for base in base_names_by_level[level]:
+            deployment_name = f"{base}-{level}-{user.username}"
+            if level == f'level{user_level}':
+                matching_deployments.append(deployment_name)
+            else:
+                non_matching_deployments.append(deployment_name)
+
+    return matching_deployments, non_matching_deployments
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def set_replicaset(request):
     user = request.user  # Get the authenticated user from the request
+    namespace = f"{user.username}"
     profile, _ = UserProfile.objects.get_or_create(user=user)
     user_level = profile.level  # Get the user level from the profile
 
-    all_deployments = get_deployment_names(user, user_level)
-
-    # Determine the deployments that need to be scaled down
-    deployments_to_scale_down = [dep for dep in all_deployments if f"level{user_level}" not in dep]
+    matching_deployments, non_matching_deployments = get_valid_deployments(user, user_level)
 
     errors = []
 
-    for deployment in deployments_to_scale_down:
+    # Scale up the deployments that match the user's level to 1
+    for deployment in matching_deployments:
         try:
-            # Use kubectl to scale the ReplicaSet to 0
-            subprocess.run(['kubectl', 'scale', 'deployment', deployment, '--replicas=0'], check=True)
+            subprocess.run(['kubectl', 'scale', 'deployment', deployment, '--replicas=1', f"--namespace={namespace}"], check=True)
         except subprocess.CalledProcessError as e:
-            errors.append(f"Failed to scale {deployment}: {str(e)}")
+            errors.append(f"Failed to scale up {deployment}: {str(e)}")
+
+    # Scale down the deployments that do not match the user's level to 0
+    for deployment in non_matching_deployments:
+        try:
+            subprocess.run(['kubectl', 'scale', 'deployment', deployment, '--replicas=0', f"--namespace={namespace}"], check=True)
+        except subprocess.CalledProcessError as e:
+            errors.append(f"Failed to scale down {deployment}: {str(e)}")
 
     if errors:
-        return Response({'error': 'Some deployments could not be scaled down', 'details': errors}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'error': 'Some deployments could not be scaled down/up', 'details': errors}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    return Response({'message': 'ReplicaSets updated successfully', 'scaled_down_deployments': deployments_to_scale_down})
+    return Response({'message': 'ReplicaSets updated successfully', 'scaled_up_deployments': matching_deployments, 'scaled_down_deployments': non_matching_deployments})
