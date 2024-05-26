@@ -351,7 +351,7 @@ def parse_kubernetes_timestamp(timestamp_str):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_pod_logs(request, pod_name):
-    namespace = request.user.username + "-namespace"
+    namespace = f"{request.user.username}"
     try:
         cmd = [
             "kubectl", "logs", pod_name,
@@ -377,3 +377,49 @@ def get_pod_logs(request, pod_name):
     except subprocess.CalledProcessError as e:
         error_message = f"Failed to fetch logs: {e.stderr}"
         return JsonResponse({"error": error_message}, status=400)
+
+
+def get_deployment_names(user, level):
+    base_names = [
+        'oai-cu',
+        'oai-du',
+        'oai-du1',
+        'oai-du2',
+        'oai-nr-ue',
+        'oai-nr-ue1',
+        'oai-nr-ue2'
+    ]
+    levels = ['level1', 'level2', 'level3']
+    user_deployments = []
+
+    for base in base_names:
+        for lvl in levels:
+            user_deployments.append(f"{base}-{lvl}-{user.username}")
+
+    return user_deployments
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def set_replicaset(request):
+    user = request.user  # Get the authenticated user from the request
+    profile, _ = UserProfile.objects.get_or_create(user=user)
+    user_level = profile.level  # Get the user level from the profile
+
+    all_deployments = get_deployment_names(user, user_level)
+
+    # Determine the deployments that need to be scaled down
+    deployments_to_scale_down = [dep for dep in all_deployments if f"level{user_level}" not in dep]
+
+    errors = []
+
+    for deployment in deployments_to_scale_down:
+        try:
+            # Use kubectl to scale the ReplicaSet to 0
+            subprocess.run(['kubectl', 'scale', 'deployment', deployment, '--replicas=0'], check=True)
+        except subprocess.CalledProcessError as e:
+            errors.append(f"Failed to scale {deployment}: {str(e)}")
+
+    if errors:
+        return Response({'error': 'Some deployments could not be scaled down', 'details': errors}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    return Response({'message': 'ReplicaSets updated successfully', 'scaled_down_deployments': deployments_to_scale_down})

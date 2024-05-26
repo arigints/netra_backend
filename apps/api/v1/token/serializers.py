@@ -30,6 +30,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['is_staff'] = user.is_staff
         token['is_superuser'] = user.is_superuser
         token['session_id'] = new_session_id  # Include the new session identifier in the token
+        token['level'] = profile.level  # Include the user profile level in the token
 
         # Return the token and additional data
         return {
@@ -38,5 +39,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
             'session_id': new_session_id,
             'is_staff': user.is_staff,
             'is_superuser': user.is_superuser
+            'level': profile.level 
         }
 

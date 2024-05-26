@@ -20,6 +20,6 @@ urlpatterns = [
     path('restart_multiue_ru/', views.restart_multiue_du, name='restart_multiue_ru'),
     path('restart_multiue_ue1/', views.restart_multiue_ue1, name='restart_multiue_ue1'),
     path('restart_multiue_ue2/', views.restart_multiue_ue2, name='restart_multiue_ue2'),
-
     path('pods/<str:pod_name>/logs/', views.get_pod_logs, name='get_pod_logs'),
+    path('set_replicaset/', views.set_replicaset, name='set_replicaset')
 ]

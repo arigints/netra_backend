@@ -11,6 +11,7 @@ from apps.models import UserProfile
 from apps.kube_utils import get_role_yaml, get_role_binding_yaml
 import subprocess
 from apps.api.v1.oai.views import create_all_components, delete_all_components
+import subprocess
 
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
@@ -103,9 +104,20 @@ def update_user(request, pk):
     except User.DoesNotExist:
         return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 
+    old_username = user.username
     serializer = UserUpdateSerializer(user, data=request.data, partial=True)  # partial=True allows for partial updates
     if serializer.is_valid():
         serializer.save()
+        
+        # Check if the username has been updated
+        new_username = serializer.data.get('username')
+        if old_username != new_username:
+            try:
+                # Run the subprocess command to update the Kubernetes namespace
+                subprocess.run(['kubectl', 'rename', 'namespace', old_username, new_username], check=True)
+            except subprocess.CalledProcessError as e:
+                return Response({'error': f'Failed to update Kubernetes namespace: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -144,7 +156,6 @@ def delete_user(request, pk):
     except User.DoesNotExist:
         return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-    
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_information(request):
