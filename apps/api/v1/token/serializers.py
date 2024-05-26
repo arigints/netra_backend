@@ -38,7 +38,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
             'refresh': str(token),
             'session_id': new_session_id,
             'is_staff': user.is_staff,
-            'is_superuser': user.is_superuser
+            'is_superuser': user.is_superuser,
             'level': profile.level 
         }
 
