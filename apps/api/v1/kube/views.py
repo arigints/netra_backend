@@ -476,3 +476,33 @@ def ping_google(request):
         return Response({"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def curl_google(request):
+    user = request.user
+    namespace = f"{user.username}"
+
+    try:
+        profile = UserProfile.objects.get(user=user)
+        user_level = profile.level
+        component_container = "nr-ue"  # The container you want to exec into
+        pod_label = f"oai-nr-ue-level{user_level}-{user.username}"
+
+        # Construct the command to get the pod name
+        get_pod_command = f"kubectl get pods -n {namespace} | grep {pod_label} | awk '{{print $1}}'"
+        pod_name = subprocess.check_output(get_pod_command, shell=True).decode('utf-8').strip()
+
+        if pod_name:
+            curl_command = f"kubectl exec -n {namespace} -c {component_container} {pod_name} -- curl www.google.com"
+            curl_output = subprocess.check_output(curl_command, shell=True).decode('utf-8').strip()
+
+            return Response({"message": "curl successful", "output": curl_output}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Pod not found"}, status=status.HTTP_404_NOT_FOUND)
+    except subprocess.CalledProcessError as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except UserProfile.DoesNotExist:
+        return Response({"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
