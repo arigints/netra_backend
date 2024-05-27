@@ -58,7 +58,7 @@ def capture_and_return_packets(request, pod_name):
     namespace = f"{request.user.username}"
     try:
         # Update the tshark filter expression to include the desired protocols
-        cmd = f"kubectl sniff -n {namespace} {pod_name} -o - | tshark -r - -c 100 -Y 'nas-5gs or f1ap or ngap or sctp or pfcp or gtp or tcp or dhcp or udp' -T json"
+        cmd = f"kubectl sniff -n {namespace} {pod_name} -o - | tshark -r - -c 20 -Y 'nas-5gs or f1ap or ngap or sctp or pfcp or gtp or tcp or dhcp or udp' -T json"
         result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
         if result.returncode != 0 or not result.stdout.strip():
