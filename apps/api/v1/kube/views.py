@@ -464,7 +464,7 @@ def ping_google(request):
         pod_name = subprocess.check_output(get_pod_command, shell=True).decode('utf-8').strip()
 
         if pod_name:
-            ping_command = f"kubectl exec -n {namespace} -c {component_container} {pod_name} -- ping -c 10 8.8.8.8"
+            ping_command = f"kubectl exec -n {namespace} -c {component_container} {pod_name} -- ping -c 4 8.8.8.8"
             ping_output = subprocess.check_output(ping_command, shell=True).decode('utf-8').strip()
 
             return Response({"message": "Ping successful", "output": ping_output}, status=status.HTTP_200_OK)
