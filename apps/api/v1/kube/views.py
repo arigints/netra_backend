@@ -446,3 +446,33 @@ def set_replicaset(request):
         return Response({'error': 'Some deployments could not be scaled down/up', 'details': errors}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return Response({'message': 'ReplicaSets updated successfully', 'scaled_up_deployments': matching_deployments, 'scaled_down_deployments': non_matching_deployments})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def ping_google(request):
+    user = request.user
+    namespace = f"{user.username}"
+
+    try:
+        profile = UserProfile.objects.get(user=user)
+        user_level = profile.level
+        component_container = "nr-ue"  # The container you want to exec into
+        pod_label = f"oai-nr-ue-level{user_level}-{user.username}"
+
+        # Construct the command to get the pod name
+        get_pod_command = f"kubectl get pods -n {namespace} | grep {pod_label} | awk '{{print $1}}'"
+        pod_name = subprocess.check_output(get_pod_command, shell=True).decode('utf-8').strip()
+
+        if pod_name:
+            ping_command = f"kubectl exec -n {namespace} -c {component_container} {pod_name} -- ping -c 10 8.8.8.8"
+            ping_output = subprocess.check_output(ping_command, shell=True).decode('utf-8').strip()
+
+            return Response({"message": "Ping successful", "output": ping_output}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Pod not found"}, status=status.HTTP_404_NOT_FOUND)
+    except subprocess.CalledProcessError as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except UserProfile.DoesNotExist:
+        return Response({"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
