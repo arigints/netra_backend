@@ -101,3 +101,32 @@ def capture_and_return_packets(request, pod_name):
         return Response({"error": f"Unexpected error: {str(e)}"}, status=500)
 
 
+###################################################################################
+
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from apps.models import PcapFile
+from django.conf import settings
+import os
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_pcap_files(request):
+    try:
+        user = request.user
+        pcap_files = PcapFile.objects.filter(user=user)
+        file_data = [
+            {
+                "filename": pcap_file.filename,
+                "url": request.build_absolute_uri(settings.MEDIA_URL + pcap_file.filename),
+                "created_at": pcap_file.created_at
+            }
+            for pcap_file in pcap_files
+        ]
+        return Response(file_data)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+

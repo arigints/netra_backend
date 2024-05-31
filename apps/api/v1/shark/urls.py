@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('test/', views.capture_packets, name='test'),
     path('testv1/<str:pod_name>/', views.capture_and_return_packets, name='testv1'),
+    path('pcap_files/', views.list_pcap_files, name='list_pcap_files'),
 ]
 
 
