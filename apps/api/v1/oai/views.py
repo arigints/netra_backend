@@ -81,91 +81,88 @@ def revert_chart_name(chart_file_path, original_name):
 
 
 ###CREATE ALL 5G COMPONENT NEEDED BY THE USER###
-def create_all_components(request, namespace):
-    try:        
-        original_names = {}
+def create_all_components(request):
+    namespace = f"{request.user.username}"
+    original_names = {}
 
+    # Define paths to your chart files (assuming these are defined elsewhere)
+    chart_files = {
+        "single_cu": SINGLE_CU_CHART_FILE_PATH,
+        "single_du": SINGLE_DU_CHART_FILE_PATH,
+        "single_ue": SINGLE_UE_CHART_FILE_PATH,
+        "multignb_cu": MULTI_GNB_CU_CHART_FILE_PATH,
+        "multignb_du1": MULTI_GNB_DU1_CHART_FILE_PATH,
+        "multignb_du2": MULTI_GNB_DU2_CHART_FILE_PATH,
+        "multignb_ue1": MULTI_GNB_UE1_CHART_FILE_PATH,
+        "multignb_ue2": MULTI_GNB_UE2_CHART_FILE_PATH,
+        "multiue_cu": MULTI_UE_CU_CHART_FILE_PATH,
+        "multiue_du": MULTI_UE_DU_CHART_FILE_PATH,
+        "multiue_ue1": MULTI_UE_UE1_CHART_FILE_PATH,
+        "multiue_ue2": MULTI_UE_UE2_CHART_FILE_PATH,
+    }
+
+    try:
         # Store original names and update with new names
-        for chart_file_path in [SINGLE_CU_CHART_FILE_PATH, SINGLE_DU_CHART_FILE_PATH, SINGLE_UE_CHART_FILE_PATH, MULTI_GNB_CU_CHART_FILE_PATH, MULTI_GNB_DU1_CHART_FILE_PATH, MULTI_GNB_DU2_CHART_FILE_PATH, MULTI_GNB_UE1_CHART_FILE_PATH, MULTI_GNB_UE2_CHART_FILE_PATH, MULTI_UE_CU_CHART_FILE_PATH, MULTI_UE_DU_CHART_FILE_PATH, MULTI_UE_UE1_CHART_FILE_PATH, MULTI_UE_UE2_CHART_FILE_PATH]:
+        for key, chart_file_path in chart_files.items():
             with open(chart_file_path, 'r') as file:
                 chart_yaml = yaml.safe_load(file)
                 original_names[chart_file_path] = chart_yaml['name']
             update_chart_name(chart_file_path, namespace)
 
-        #SINGLE - CU
-        subprocess.run([
-            "helm", "install", "single-cu", "--values", "values.yaml",
-            ".", "--namespace", namespace
-        ], cwd=SINGLE_CU_BASE_DIR)
+        # Define the Helm install commands
+        helm_commands = {
+            "single_cu": [SINGLE_CU_BASE_DIR, "single-cu"],
+            "single_du": [SINGLE_DU_BASE_DIR, "single-du"],
+            "single_ue": [SINGLE_UE_BASE_DIR, "single-ue"],
+            "multignb_cu": [MULTI_GNB_CU_BASE_DIR, "multignb-cu"],
+            "multignb_du1": [MULTI_GNB_DU1_BASE_DIR, "multignb-du1"],
+            "multignb_du2": [MULTI_GNB_DU2_BASE_DIR, "multignb-du2"],
+            "multignb_ue1": [MULTI_GNB_UE1_BASE_DIR, "multignb-ue1"],
+            "multignb_ue2": [MULTI_GNB_UE2_BASE_DIR, "multignb-ue2"],
+            "multiue_cu": [MULTI_UE_CU_BASE_DIR, "multiue-cu"],
+            "multiue_du": [MULTI_UE_DU_BASE_DIR, "multiue-du"],
+            "multiue_ue1": [MULTI_UE_UE1_BASE_DIR, "multiue-ue1"],
+            "multiue_ue2": [MULTI_UE_UE2_BASE_DIR, "multiue-ue2"],
+        }
 
-        #SINGLE - DU
-        subprocess.run([
-            "helm", "install", "single-du", "--values", "values.yaml",
-            ".", "--namespace", namespace
-        ], cwd=SINGLE_DU_BASE_DIR)
+        # Install Helm charts
+        for key, value in helm_commands.items():
+            base_dir, release_name = value
+            subprocess.run([
+                "helm", "install", release_name, "--values", "values.yaml",
+                ".", "--namespace", namespace
+            ], cwd=base_dir)
 
-        #SINGLE - UE
-        subprocess.run([
-            "helm", "install", "single-ue", "--values", "values.yaml",
-            ".", "--namespace", namespace
-        ], cwd=SINGLE_UE_BASE_DIR)
+        # Define and scale deployments for each level
+        level1_deployments = ["cu", "du", "ue"]
+        level2_deployments = ["cu", "du1", "du2", "ue1", "ue2"]
+        level3_deployments = ["cu", "du", "ue1", "ue2"]
 
-        #MULTI-GNB - CU
-        subprocess.run([
-            "helm", "install", "multignb-cu", "--values", "values.yaml",
-            ".", "--namespace", namespace
-        ], cwd=MULTI_GNB_CU_BASE_DIR)
+        for component in level1_deployments:
+            deployment_name = f"oai-{component}-level1-{namespace}"
+            subprocess.run([
+                "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
+                "--namespace=" + namespace
+            ])
 
-        #MULTI-GNB - DU1
-        subprocess.run([
-            "helm", "install", "multignb-du1", "--values", "values.yaml",
-            ".", "--namespace", namespace
-        ], cwd=MULTI_GNB_DU1_BASE_DIR)
+        for component in level2_deployments:
+            deployment_name = f"oai-{component}-level2-{namespace}"
+            subprocess.run([
+                "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
+                "--namespace=" + namespace
+            ])
 
-        #MULTI-GNB - DU2
-        subprocess.run([
-            "helm", "install", "multignb-du2", "--values", "values.yaml",
-            ".", "--namespace", namespace
-        ], cwd=MULTI_GNB_DU2_BASE_DIR)
+        for component in level3_deployments:
+            deployment_name = f"oai-{component}-level3-{namespace}"
+            subprocess.run([
+                "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
+                "--namespace=" + namespace
+            ])
 
-        #MULTI-GNB - UE1
-        subprocess.run([
-            "helm", "install", "multignb-ue1", "--values", "values.yaml",
-            ".", "--namespace", namespace
-        ], cwd=MULTI_GNB_UE1_BASE_DIR)
+        return "success"
 
-        #MULTI-GNB - UE2
-        subprocess.run([
-            "helm", "install", "multignb-ue2", "--values", "values.yaml",
-            ".", "--namespace", namespace
-        ], cwd=MULTI_GNB_UE2_BASE_DIR)
-
-        #MULTI-UE - CU
-        subprocess.run([
-            "helm", "install", "multiue-cu", "--values", "values.yaml",
-            ".", "--namespace", namespace
-        ], cwd=MULTI_UE_CU_BASE_DIR)
-
-        #MULTI-UE - DU
-        subprocess.run([
-            "helm", "install", "multiue-du", "--values", "values.yaml",
-            ".", "--namespace", namespace
-        ], cwd=MULTI_UE_DU_BASE_DIR)
-
-        #MULTI-UE - UE1
-        subprocess.run([
-            "helm", "install", "multiue-ue1", "--values", "values.yaml",
-            ".", "--namespace", namespace
-        ], cwd=MULTI_UE_UE1_BASE_DIR)
-
-        #MULTI-UE - UE2
-        subprocess.run([
-            "helm", "install", "multiue-ue2", "--values", "values.yaml",
-            ".", "--namespace", namespace
-        ], cwd=MULTI_UE_UE2_BASE_DIR)
-
-        return "Success"
-
+    except subprocess.CalledProcessError as e:
+        return Response({"error": f"An error occurred: {e}"}, status=500)
     finally:
         # Revert the names back to original
         for chart_file_path, original_name in original_names.items():
