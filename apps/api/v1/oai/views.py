@@ -81,8 +81,7 @@ def revert_chart_name(chart_file_path, original_name):
 
 
 ###CREATE ALL 5G COMPONENT NEEDED BY THE USER###
-def create_all_components(request):
-    namespace = f"{request.user.username}"
+def create_all_components(request, namespace):
     original_names = {}
 
     # Define paths to your chart files (assuming these are defined elsewhere)
@@ -134,9 +133,9 @@ def create_all_components(request):
             ], cwd=base_dir)
 
         # Define and scale deployments for each level
-        level1_deployments = ["cu", "du", "ue"]
-        level2_deployments = ["cu", "du1", "du2", "ue1", "ue2"]
-        level3_deployments = ["cu", "du", "ue1", "ue2"]
+        level1_deployments = ["cu", "du", "nr-ue"]
+        level2_deployments = ["cu", "du1", "du2", "nr-ue1", "nr-ue2"]
+        level3_deployments = ["cu", "du", "nr-ue1", "nr-ue2"]
 
         for component in level1_deployments:
             deployment_name = f"oai-{component}-level1-{namespace}"
@@ -159,7 +158,7 @@ def create_all_components(request):
                 "--namespace=" + namespace
             ])
 
-        return "success"
+        return "Success"
 
     except subprocess.CalledProcessError as e:
         return Response({"error": f"An error occurred: {e}"}, status=500)
