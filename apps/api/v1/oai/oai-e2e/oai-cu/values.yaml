@@ -1,0 +1,93 @@
+kubernetesType: Vanilla  
+
+nfimage:   
+  repository: docker.io/oaisoftwarealliance/oai-gnb            
+  version: 2023.w49
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: "regcred"
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+multus:
+  defaultGateway: ""
+  f1Interface:
+    create: true
+    IPadd: "192.168.1.1"
+    Netmask: "28"
+    hostInterface: "ens33"     
+  n2Interface:
+    create: true
+    IPadd: "172.21.6.90"
+    Netmask: "24"
+    hostInterface: "ens34"      
+  n3Interface:
+    create: true
+    IPadd: "172.21.8.90"
+    Netmask: "24"
+    hostInterface: "ens34"      
+
+config:
+  mountConfig: true         
+  timeZone: "Asia/Jakarta"
+  useAdditionalOptions: "--sa --log_config.global_log_options level,nocolor,time"
+  cuName: "oai-cu"
+  cuId: "0xe04"
+  cellId: "12345678L"
+  mcc: "208"   
+  mnc: "99"    
+  tac: "0xa001"     
+  sst: "1"  
+  amfhost: "172.21.6.94"  
+  n2IfName: "n2"    
+  n3IfName: "n3"   
+  f1IfName: "f1"   
+  f1cuPort: "2152"   
+  f1duPort: "2152"   
+
+podSecurityContext:
+  runAsUser: 0
+  runAsGroup: 0
+
+start:
+  gnbcu: true 
+  tcpdump: false
+
+includeTcpDumpContainer: false 
+
+tcpdumpimage:
+   repository: docker.io/corfr/tcpdump
+   version: latest
+   pullPolicy: IfNotPresent
+
+resources:
+  define: false
+  limits:
+    nf:
+      cpu: 100m
+      memory: 128Mi
+    tcpdump:
+      cpu: 100m
+      memory: 128Mi
+  requests:
+    nf:
+      cpu: 100m
+      memory: 128Mi
+    tcpdump:
+      cpu: 100m
+      memory: 128Mi
+
+
+tolerations: []
+
+affinity: {}
+
+terminationGracePeriodSeconds: 5
+
+nodeSelector: {}
+
+# nodeName: node3
