@@ -15,6 +15,8 @@ class UserProfile(models.Model):
 class PcapFile(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     filename = models.CharField(max_length=255)
+    file_data = models.BinaryField()  # Field to store binary data
+    file_size = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -28,3 +30,4 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
+

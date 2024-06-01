@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
-from .models import UserProfile
+from .models import UserProfile, PcapFile
 
 class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -49,3 +49,11 @@ class UserInformationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'level', 'completion']
+
+class PcapFileSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(source='user.username', read_only=True)  # Use username instead of user ID
+
+    class Meta:
+        model = PcapFile
+        fields = ['id', 'user', 'filename', 'file_size', 'created_at']  # Exclude file_data field
+        read_only_fields = ['id', 'user', 'filename', 'file_size', 'created_at']

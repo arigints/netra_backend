@@ -3,8 +3,13 @@ from .models import UserProfile, PcapFile
 
 admin.site.register(UserProfile)
 
-
-@admin.register(PcapFile)
 class PcapFileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'filename', 'created_at')
+    list_display = ('user', 'filename', 'file_size', 'created_at')
+    search_fields = ('filename', 'user__username')
+    list_filter = ('created_at', 'user')
+
+admin.site.register(PcapFile, PcapFileAdmin)
+
+
+
 
