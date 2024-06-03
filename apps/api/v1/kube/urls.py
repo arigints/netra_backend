@@ -23,5 +23,6 @@ urlpatterns = [
     path('pods/<str:pod_name>/logs/', views.get_pod_logs, name='get_pod_logs'),
     path('set_replicaset/', views.set_replicaset, name='set_replicaset'),
     path('ping_google/', views.ping_google, name='ping_google'),
-    path('curl_google/', views.curl_google, name='curl_google')
+    path('curl_google/', views.curl_google, name='curl_google'),
+    path('get_ue_log/<str:namespace>/<str:pod_name>/', views.get_ue_log, name='get_ue_log')
 ]

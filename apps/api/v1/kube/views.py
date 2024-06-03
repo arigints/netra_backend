@@ -506,3 +506,36 @@ def curl_google(request):
         return Response({"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_ue_log(request, namespace, pod_name):
+    user = request.user
+
+    try:
+        # Execute the kubectl command to enter the pod
+        exec_command = f"kubectl exec -it {pod_name} -n {namespace} -- /bin/bash -c 'cat nrL1_UE_stats-0.log'"
+        result = subprocess.run(exec_command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        # Capture the output and error
+        log_output = result.stdout.decode('utf-8')
+        log_error = result.stderr.decode('utf-8')
+
+        if result.returncode != 0:
+            return JsonResponse({'error': log_error}, status=500)
+
+        # Parse the log file content to JSON (assuming the log content is in a JSON-like format)
+        log_data = []
+        for line in log_output.splitlines():
+            try:
+                log_entry = json.loads(line)
+                log_data.append(log_entry)
+            except json.JSONDecodeError:
+                # Handle lines that are not JSON formatted
+                log_data.append({"log": line})
+
+        return JsonResponse({'log': log_data}, status=200)
+    
+    except subprocess.CalledProcessError as e:
+        return JsonResponse({'error': str(e)}, status=500)
