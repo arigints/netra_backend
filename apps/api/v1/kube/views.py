@@ -539,3 +539,71 @@ def get_ue_log(request, namespace, pod_name):
     
     except subprocess.CalledProcessError as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+def get_pod_name(identifier, namespace="core-network"):
+    try:
+        cmd = ["kubectl", "get", "pods", "-n", namespace, "-o", "json"]
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        pods = json.loads(result.stdout)
+
+        for pod in pods['items']:
+            pod_name = pod['metadata']['name']
+            if identifier in pod_name:
+                return pod_name
+        return None
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Failed to get pods: {e.stderr}")
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_amf_logs(request):
+    try:
+        pod_name = get_pod_name("amf")
+        if not pod_name:
+            return JsonResponse({"error": "AMF pod not found"}, status=404)
+        
+        logs = get_pod_logs(pod_name)
+        return JsonResponse(logs, safe=False)
+
+    except RuntimeError as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_upf_logs(request):
+    try:
+        pod_name = get_pod_name("upf")
+        if not pod_name:
+            return JsonResponse({"error": "UPF pod not found"}, status=404)
+        
+        logs = get_pod_logs(pod_name)
+        return JsonResponse(logs, safe=False)
+
+    except RuntimeError as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+def get_pod_logs(pod_name, namespace="core-network"):
+    try:
+        cmd = [
+            "kubectl", "logs", pod_name,
+            "-n", namespace,
+            "--tail=10",  # Fetch the last 10 lines of logs
+            "--timestamps"
+        ]
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        logs = result.stdout.strip().split('\n')
+
+        structured_logs = []
+        for line in logs:
+            parts = line.split(maxsplit=1)  # Split only on the first space
+            if len(parts) == 2:
+                timestamp_str, log_message = parts
+                # Parse the timestamp and reformat it to show only the time
+                timestamp = parse_kubernetes_timestamp(timestamp_str)
+                time_only_str = timestamp.strftime('%H:%M:%S')
+                structured_logs.append({"timestamp": time_only_str, "log": log_message})
+        
+        return structured_logs
+
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Failed to fetch logs: {e.stderr}")
