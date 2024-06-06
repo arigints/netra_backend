@@ -540,7 +540,7 @@ def get_ue_log(request, namespace, pod_name):
     except subprocess.CalledProcessError as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-def get_pod_name(identifier, namespace="core-network"):
+def get_pod_core(identifier, namespace="core-network"):
     try:
         cmd = ["kubectl", "get", "pods", "-n", namespace, "-o", "json"]
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
@@ -558,11 +558,11 @@ def get_pod_name(identifier, namespace="core-network"):
 @permission_classes([IsAuthenticated])
 def get_amf_logs(request):
     try:
-        pod_name = get_pod_name("amf")
+        pod_name = get_pod_core("amf")
         if not pod_name:
             return JsonResponse({"error": "AMF pod not found"}, status=404)
         
-        logs = get_pod_logs(pod_name)
+        logs = get_core_logs(pod_name)
         return JsonResponse(logs, safe=False)
 
     except RuntimeError as e:
@@ -572,17 +572,17 @@ def get_amf_logs(request):
 @permission_classes([IsAuthenticated])
 def get_upf_logs(request):
     try:
-        pod_name = get_pod_name("upf")
+        pod_name = get_pod_core("upf")
         if not pod_name:
             return JsonResponse({"error": "UPF pod not found"}, status=404)
         
-        logs = get_pod_logs(pod_name)
+        logs = get_core_logs(pod_name)
         return JsonResponse(logs, safe=False)
 
     except RuntimeError as e:
         return JsonResponse({"error": str(e)}, status=400)
 
-def get_pod_logs(pod_name, namespace="core-network"):
+def get_core_logs(pod_name, namespace="core-network"):
     try:
         cmd = [
             "kubectl", "logs", pod_name,
@@ -607,3 +607,40 @@ def get_pod_logs(pod_name, namespace="core-network"):
 
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Failed to fetch logs: {e.stderr}")
+
+def get_deployment_core(identifier, namespace="core-network"):
+    try:
+        cmd = ["kubectl", "get", "deployments", "-n", namespace, "-o", "json"]
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        deployments = json.loads(result.stdout)
+
+        filtered_deployments = []
+        for deployment in deployments['items']:
+            deployment_name = deployment['metadata']['name']
+            if identifier in deployment_name:
+                replicas = deployment['status']['replicas']
+                filtered_deployments.append({
+                    'name': deployment_name,
+                    'replicas': replicas
+                })
+        return filtered_deployments
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Failed to get deployments: {e.stderr}")
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_amf_deployments(request):
+    try:
+        deployments = get_deployment_core("amf")
+        return JsonResponse(deployments, safe=False)
+    except RuntimeError as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_upf_deployments(request):
+    try:
+        deployments = get_deployment_core("upf")
+        return JsonResponse(deployments, safe=False)
+    except RuntimeError as e:
+        return JsonResponse({'error': str(e)}, status=500)

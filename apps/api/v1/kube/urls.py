@@ -27,4 +27,6 @@ urlpatterns = [
     path('get_ue_log/<str:namespace>/<str:pod_name>/', views.get_ue_log, name='get_ue_log'),
     path('get_amf_logs/', views.get_amf_logs, name='get_amf_logs'),
     path('get_upf_logs/', views.get_upf_logs, name='get_upf_logs'),
+    path('get_amf_deployments/', views.get_amf_deployments, name='get_amf_deployments'),
+    path('get_upf_deployments/', views.get_upf_deployments, name='get_upf_deployments'),
 ]
