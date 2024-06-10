@@ -116,6 +116,44 @@ def capture_and_return_packets(request, pod_name):
 
 ###################################################################################
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def capture_and_return_packets_no_save(request, pod_name):
+    namespace = f"{request.user.username}"
+    
+    try:
+        # Capture the packets into a variable
+        capture_cmd = f"kubectl sniff -n {namespace} {pod_name} -o - | tshark -r - -c 20 -Y 'nas-5gs or f1ap or ngap or sctp or pfcp or gtp or tcp or dhcp or udp' -w -"
+        capture_result = subprocess.run(capture_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        if capture_result.returncode != 0:
+            error_message = f"Command failed or produced no output. Return code: {capture_result.returncode}. STDERR: {capture_result.stderr.decode('utf-8')}"
+            return Response({"error": error_message}, status=400)
+        
+        pcap_data = capture_result.stdout
+
+        # Parse the captured data to JSON
+        parse_cmd = "tshark -r - -T json"
+        parse_result = subprocess.run(parse_cmd, input=pcap_data, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        if parse_result.returncode != 0:
+            error_message = f"Parsing command failed. Return code: {parse_result.returncode}. STDERR: {parse_result.stderr.decode('utf-8')}"
+            return Response({"error": error_message}, status=400)
+
+        packets = json.loads(parse_result.stdout.decode('utf-8'))
+
+        return Response({
+            "message": "PCAP file captured successfully",
+            "packets": packets
+        })
+    
+    except json.JSONDecodeError as e:
+        return Response({"error": f"JSON decoding error: {str(e)}"}, status=500)
+    except Exception as e:
+        return Response({"error": f"Unexpected error: {str(e)}"}, status=500)
+
+###################################################################################      
+
 from django.http import HttpResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
