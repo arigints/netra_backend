@@ -140,7 +140,7 @@ def create_all_components(request, namespace):
         for component in level1_deployments:
             deployment_name = f"oai-{component}-level1-{namespace}"
             subprocess.run([
-                "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
+                "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
                 "--namespace=" + namespace
             ])
 
