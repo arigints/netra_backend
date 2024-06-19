@@ -67,7 +67,7 @@ def capture_and_return_packets_no_save(request, pod_name):
     
     try:
         # Capture the packets into a variable
-        capture_cmd = f"kubectl sniff -n {namespace} {pod_name} -o - | tshark -r - -c 20 -Y 'nas-5gs or f1ap or ngap or sctp or pfcp or gtp or tcp or dhcp or udp' -w -"
+        capture_cmd = f"kubectl sniff -n {namespace} {pod_name} -o - | tshark -r - -c 100 -Y 'nas-5gs or f1ap or ngap or sctp or pfcp or gtp or tcp or dhcp or udp' -w -"
         capture_result = subprocess.run(capture_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         if capture_result.returncode != 0:
