@@ -39,15 +39,15 @@ config:
   cuId: ""
   cellId: ""
   mcc: ""   
-  mnc: ""    
-  tac: ""     
+  mnc: ""   
+  tac: ""    
   sst: ""  
   amfhost: ""  
   n2IfName: "n2"    
   n3IfName: "n3"   
   f1IfName: "f1"   
-  f1cuPort: ""   
-  f1duPort: ""   
+  f1cuPort: "5555"   
+  f1duPort: "5555"   
 
 podSecurityContext:
   runAsUser: 0
