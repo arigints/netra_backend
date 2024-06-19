@@ -63,8 +63,8 @@ config:
   usrp:    
   f1IfName: "f1"   
   cuHost: "" 
-  f1cuPort: ""   
-  f1duPort: ""   
+  f1cuPort: "5555"   
+  f1duPort: "5555"   
 
 ## Debugging section
 podSecurityContext:
