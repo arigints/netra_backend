@@ -726,29 +726,11 @@ def values_multiue_ue2(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def config_single_cu(request):
-    original_names = {}
-
-    # Define paths to your chart files (assuming these are defined elsewhere)
-    chart_files = {
-        "single_cu": SINGLE_CU_CHART_FILE_PATH,
-    }
-
-    username = request.user.username
-    namespace = username
-
-    for key, chart_file_path in chart_files.items():
-    with open(chart_file_path, 'r') as file:
-        chart_yaml = yaml.safe_load(file)
-        original_names[chart_file_path] = chart_yaml['name']
-    update_chart_name(chart_file_path, namespace)
+    namespace = f"{request.user.username}"
 
     # Get current values
     get_values_command = ["helm", "get", "values", "single-cu", "--namespace", namespace, "--output", "yaml"]
-    try:
-        current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
-    except subprocess.CalledProcessError as e:
-        return Response({"message": f"Error getting current values: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
-
+    current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
     current_values = yaml.safe_load(current_values_yaml)
 
     # Iterate over expected fields and update if provided in JSON body
@@ -787,14 +769,8 @@ def config_single_cu(request):
         "--namespace", namespace,
         "-f", 'updated_values.yaml'
     ]
-    try:
-        subprocess.run(upgrade_command, check=True)
-    except subprocess.CalledProcessError as e:
-        return Response({"message": f"Error upgrading Helm chart: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
-    finally:
-        os.remove('updated_values.yaml')
-        for chart_file_path, original_name in original_names.items():
-            revert_chart_name(chart_file_path, original_name)
+    subprocess.run(upgrade_command)
+    os.remove('updated_values.yaml')
 
     return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
 
@@ -802,71 +778,57 @@ def config_single_cu(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def config_single_du(request):
-    username = request.user.username
-    namespace = f"{username}"
+    namespace = f"{request.user.username}"
 
-    # Store the original name and update with the new name
-    with open(SINGLE_DU_CHART_FILE_PATH, 'r') as file:
-        chart_yaml = yaml.safe_load(file)
-        original_name = chart_yaml['name']
-    update_chart_name(SINGLE_DU_CHART_FILE_PATH, username)
+    # Get the current configuration from Helm
+    get_values_command = ["helm", "get", "values", "single-du", "--namespace", namespace, "--output", "yaml"]
+    current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
+    current_values = yaml.safe_load(current_values_yaml)
 
-    try:
-        # Get the current configuration from Helm
-        get_values_command = ["helm", "get", "values", f"single-du-{username}", "--namespace", namespace, "--output", "yaml"]
-        current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
-        current_values = yaml.safe_load(current_values_yaml)
+    # Dictionary to map JSON keys to their path in the YAML data structure
+    field_mappings = {
+        'gnb_id': ['config', 'gnbId'],
+        'du_id': ['config', 'duId'],
+        'cell_id': ['config', 'cellId'],
+        'f1_int': ['multus', 'f1Interface', 'IPadd'],
+        'f1_cuport': ['config', 'f1cuPort'],
+        'f1_duport': ['config', 'f1duPort'],
+        'mcc': ['config', 'mcc'],
+        'mnc': ['config', 'mnc'],
+        'tac': ['config', 'tac'],
+        'sst': ['config', 'sst'],
+        'usrp': ['config', 'usrp'],
+        'cu_host': ['config', 'cuHost']
+    }
 
-        # Dictionary to map JSON keys to their path in the YAML data structure
-        field_mappings = {
-            'gnb_id': ['config', 'gnbId'],
-            'du_id': ['config', 'duId'],
-            'cell_id': ['config', 'cellId'],
-            'f1_int': ['multus', 'f1Interface', 'IPadd'],
-            'f1_cuport': ['config', 'f1cuPort'],
-            'f1_duport': ['config', 'f1duPort'],
-            'mcc': ['config', 'mcc'],
-            'mnc': ['config', 'mnc'],
-            'tac': ['config', 'tac'],
-            'sst': ['config', 'sst'],
-            'usrp': ['config', 'usrp'],
-            'cu_host': ['config', 'cuHost']
-        }
+    # Update the YAML data structure based on the provided JSON data
+    for field, path in field_mappings.items():
+        # Check if the field is provided and not empty
+        value = request.data.get(field)
+        if value:
+            # Navigate through the path to set the value
+            target = current_values
+            for key in path[:-1]:
+                target = target.setdefault(key, {})
+            target[path[-1]] = value
+    
+    # Convert updated values back to YAML string
+    updated_values_yaml = yaml.dump(current_values)
 
-        # Update the YAML data structure based on the provided JSON data
-        for field, path in field_mappings.items():
-            # Check if the field is provided and not empty
-            value = request.data.get(field)
-            if value:
-                # Navigate through the path to set the value
-                target = current_values
-                for key in path[:-1]:
-                    target = target.setdefault(key, {})
-                target[path[-1]] = value
+    # Use a temporary file to pass the updated values to the helm upgrade command
+    with open('updated_values.yaml', 'w') as temp_file:
+        temp_file.write(updated_values_yaml)
+    
+    # Execute Helm upgrade command with the updated values
+    upgrade_command = [
+        "helm", "upgrade", "single-du", SINGLE_DU_BASE_DIR,
+        "--namespace", namespace,
+        "-f", 'updated_values.yaml'
+    ]
+    subprocess.run(upgrade_command)
+    os.remove('updated_values.yaml')
 
-        # Convert updated values back to YAML string
-        updated_values_yaml = yaml.dump(current_values)
-
-        # Use a temporary file to pass the updated values to the helm upgrade command
-        with open('updated_values.yaml', 'w') as temp_file:
-            temp_file.write(updated_values_yaml)
-
-        # Execute Helm upgrade command with the updated values
-        upgrade_command = [
-            "helm", "upgrade", f"single-du-{username}", SINGLE_DU_BASE_DIR,
-            "--namespace", namespace,
-            "-f", 'updated_values.yaml'
-        ]
-        subprocess.run(upgrade_command, check=True)
-        os.remove('updated_values.yaml')
-
-        return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
-
-    except subprocess.CalledProcessError as e:
-        return Response({"message": f"Error upgrading Helm chart: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
-    finally:
-        # Revert the chart name back to its original
-        revert_chart_name(SINGLE_DU_CHART_FILE_PATH, original_name)
+    return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
 
 ###SINGLE - UE###
 @api_view(['POST'])
