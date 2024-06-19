@@ -726,11 +726,20 @@ def values_multiue_ue2(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def config_single_cu(request):
-    namespace = f"{request.user.username}"
+    username = request.user.username
+    namespace = username
+
+    # Update Chart.yaml to include the username
+    chart_file_path = os.path.join(SINGLE_CU_BASE_DIR, 'Chart.yaml')
+    update_chart_name(chart_file_path, username)
 
     # Get current values
     get_values_command = ["helm", "get", "values", "single-cu", "--namespace", namespace, "--output", "yaml"]
-    current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
+    try:
+        current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
+    except subprocess.CalledProcessError as e:
+        return Response({"message": f"Error getting current values: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
     current_values = yaml.safe_load(current_values_yaml)
 
     # Iterate over expected fields and update if provided in JSON body
@@ -769,8 +778,12 @@ def config_single_cu(request):
         "--namespace", namespace,
         "-f", 'updated_values.yaml'
     ]
-    subprocess.run(upgrade_command)
-    os.remove('updated_values.yaml')
+    try:
+        subprocess.run(upgrade_command, check=True)
+    except subprocess.CalledProcessError as e:
+        return Response({"message": f"Error upgrading Helm chart: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+    finally:
+        os.remove('updated_values.yaml')
 
     return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
 
