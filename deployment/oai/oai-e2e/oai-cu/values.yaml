@@ -46,8 +46,8 @@ config:
   n2IfName: "n2"    
   n3IfName: "n3"   
   f1IfName: "f1"   
-  f1cuPort: "5555"   
-  f1duPort: "5555"   
+  f1cuPort: ""   
+  f1duPort: ""   
 
 podSecurityContext:
   runAsUser: 0
