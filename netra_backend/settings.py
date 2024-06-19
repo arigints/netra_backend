@@ -44,7 +44,20 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
+    'channels', #for websocket to support wireshark feature
 ]
+
+##################################################################################
+ASGI_APPLICATION = 'netra_backend.asgi.application'
+##################################################################################
+
+##################################################################################
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
+##################################################################################
 
 ##################################################################################
 REST_FRAMEWORK = {
