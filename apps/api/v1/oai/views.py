@@ -730,7 +730,7 @@ def config_single_cu(request):
     namespace = username
 
     # Update Chart.yaml to include the username
-    chart_file_path = os.path.join(SINGLE_CU_BASE_DIR, 'Chart.yaml')
+    chart_file_path = os.path.join(SINGLE_CU_CHART_FILE_PATH, 'Chart.yaml')
     update_chart_name(chart_file_path, username)
 
     # Get current values
