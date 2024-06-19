@@ -17,17 +17,17 @@ multus:
   defaultGateway: ""
   f1Interface:
     create: true
-    IPadd: "192.168.1.1"
+    IPadd: ""
     Netmask: "28"
     hostInterface: "ens33"     
   n2Interface:
     create: true
-    IPadd: "172.21.6.90"
+    IPadd: ""
     Netmask: "24"
     hostInterface: "ens34"      
   n3Interface:
     create: true
-    IPadd: "172.21.8.90"
+    IPadd: ""
     Netmask: "24"
     hostInterface: "ens34"      
 
@@ -36,18 +36,18 @@ config:
   timeZone: "Asia/Jakarta"
   useAdditionalOptions: "--sa --log_config.global_log_options level,nocolor,time"
   cuName: "oai-cu"
-  cuId: "0xe04"
-  cellId: "12345678L"
-  mcc: "208"   
-  mnc: "99"    
-  tac: "0xa001"     
-  sst: "1"  
-  amfhost: "172.21.6.94"  
+  cuId: ""
+  cellId: ""
+  mcc: ""   
+  mnc: ""   
+  tac: ""    
+  sst: ""  
+  amfhost: ""  
   n2IfName: "n2"    
   n3IfName: "n3"   
   f1IfName: "f1"   
-  f1cuPort: "2152"   
-  f1duPort: "2152"   
+  f1cuPort: ""   
+  f1duPort: ""   
 
 podSecurityContext:
   runAsUser: 0

@@ -110,9 +110,6 @@ def create_all_components(request, namespace):
 
         # Define the Helm install commands
         helm_commands = {
-            "single_cu": [SINGLE_CU_BASE_DIR, "single-cu"],
-            "single_du": [SINGLE_DU_BASE_DIR, "single-du"],
-            "single_ue": [SINGLE_UE_BASE_DIR, "single-ue"],
             "multignb_cu": [MULTI_GNB_CU_BASE_DIR, "multignb-cu"],
             "multignb_du1": [MULTI_GNB_DU1_BASE_DIR, "multignb-du1"],
             "multignb_du2": [MULTI_GNB_DU2_BASE_DIR, "multignb-du2"],
@@ -122,6 +119,9 @@ def create_all_components(request, namespace):
             "multiue_du": [MULTI_UE_DU_BASE_DIR, "multiue-du"],
             "multiue_ue1": [MULTI_UE_UE1_BASE_DIR, "multiue-ue1"],
             "multiue_ue2": [MULTI_UE_UE2_BASE_DIR, "multiue-ue2"],
+            "single_cu": [SINGLE_CU_BASE_DIR, "single-cu"],
+            "single_du": [SINGLE_DU_BASE_DIR, "single-du"],
+            "single_ue": [SINGLE_UE_BASE_DIR, "single-ue"],
         }
 
         # Install Helm charts

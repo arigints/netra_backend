@@ -25,21 +25,21 @@ imagePullSecrets:
 ## Change these ip-addresses according to your environment
 multus:
   create: true
-  ipadd: "192.168.1.3"
+  ipadd: ""
   netmask: "28"
   defaultGateway: ""
   hostInterface: "ens33"
 
 config:
   timeZone: "Asia/Jakarta"
-  rfSimServer: "192.168.1.2"    
-  fullImsi: "208990100001124"       
-  fullKey: "fec86ba6eb707ed08905757b1bb44b8f" 
-  opc: "c42449363bbad02b66d16bc975d77cc1"
-  dnn: "oai"
-  sst: "1"                     
-  sd: "FFFFFF"
-  usrp: "rfsim"            
+  rfSimServer: ""    
+  fullImsi: ""       
+  fullKey: "" 
+  opc: ""
+  dnn: ""
+  sst: ""                     
+  sd: ""
+  usrp: ""            
   useAdditionalOptions: "--sa --rfsim -r 106 --numerology 1 -C 3619200000 --nokrnmod --log_config.global_log_options level,nocolor,time"
 
 podSecurityContext:

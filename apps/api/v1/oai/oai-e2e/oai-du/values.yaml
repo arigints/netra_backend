@@ -30,7 +30,7 @@ multus:
   defaultGateway: ""
   f1Interface:
     create: true
-    IPadd: "192.168.1.2"
+    IPadd: ""
     Netmask: "28"
     hostInterface: "ens33"      
   ruInterface:            #Only needed if using a ethernet based RU/USRP
@@ -52,19 +52,19 @@ config:
   mountConfig: true         
   timeZone: "Asia/Jakarta"
   useAdditionalOptions: "--sa --rfsim -r 106 --numerology 1 -C 3619200000 --nokrnmod --log_config.global_log_options level,nocolor,time"
-  gnbId: "0xe05"
+  gnbId: ""
   duName: "oai-du-rfsim"
-  duId: "0xe06"
-  cellId: "12345678L"
-  mcc: "208"   
-  mnc: "99"    
-  tac: "0xa001"     
-  sst: "1"  
-  usrp: rfsim   
+  duId: ""
+  cellId: ""
+  mcc: ""   
+  mnc: ""    
+  tac: ""     
+  sst: ""  
+  usrp:    
   f1IfName: "f1"   
-  cuHost: "192.168.1.1" 
-  f1cuPort: "2152"   
-  f1duPort: "2152"   
+  cuHost: "" 
+  f1cuPort: ""   
+  f1duPort: ""   
 
 ## Debugging section
 podSecurityContext:
