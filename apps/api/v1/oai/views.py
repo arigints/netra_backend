@@ -137,13 +137,6 @@ def create_all_components(request, namespace):
         level2_deployments = ["cu", "du1", "du2", "nr-ue1", "nr-ue2"]
         level3_deployments = ["cu", "du", "nr-ue1", "nr-ue2"]
 
-        for component in level1_deployments:
-            deployment_name = f"oai-{component}-level1-{namespace}"
-            subprocess.run([
-                "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
-                "--namespace=" + namespace
-            ])
-
         for component in level2_deployments:
             deployment_name = f"oai-{component}-level2-{namespace}"
             subprocess.run([
@@ -153,6 +146,13 @@ def create_all_components(request, namespace):
 
         for component in level3_deployments:
             deployment_name = f"oai-{component}-level3-{namespace}"
+            subprocess.run([
+                "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
+                "--namespace=" + namespace
+            ])
+
+        for component in level1_deployments:
+            deployment_name = f"oai-{component}-level1-{namespace}"
             subprocess.run([
                 "kubectl", "scale", "deployment", deployment_name, "--replicas=0",
                 "--namespace=" + namespace

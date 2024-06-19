@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "oai-cu.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       {{- include "oai-cu.selectorLabels" . | nindent 6 }}
