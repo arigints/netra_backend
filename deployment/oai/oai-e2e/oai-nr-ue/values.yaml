@@ -1,5 +1,7 @@
 kubernetesType: Vanilla  #Vanilla for community kubernetes distribution else Openshift for Openshift
 
+replicas: 0  # Add this line to set the number of replicas
+
 ## In case of using these charts on Openshift then please use UBI images
 ## To know more about them follow this tutorial https://gitlab.eurecom.fr/oai/cn5g/oai-cn5g-fed/-/tree/master/openshift
 nfimage:
