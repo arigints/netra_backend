@@ -726,12 +726,21 @@ def values_multiue_ue2(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def config_single_cu(request):
+    original_names = {}
+
+    # Define paths to your chart files (assuming these are defined elsewhere)
+    chart_files = {
+        "single_cu": SINGLE_CU_CHART_FILE_PATH,
+    }
+
     username = request.user.username
     namespace = username
 
-    # Update Chart.yaml to include the username
-    chart_file_path = os.path.join(SINGLE_CU_CHART_FILE_PATH, 'Chart.yaml')
-    update_chart_name(chart_file_path, username)
+    for key, chart_file_path in chart_files.items():
+    with open(chart_file_path, 'r') as file:
+        chart_yaml = yaml.safe_load(file)
+        original_names[chart_file_path] = chart_yaml['name']
+    update_chart_name(chart_file_path, namespace)
 
     # Get current values
     get_values_command = ["helm", "get", "values", "single-cu", "--namespace", namespace, "--output", "yaml"]
@@ -784,6 +793,8 @@ def config_single_cu(request):
         return Response({"message": f"Error upgrading Helm chart: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
     finally:
         os.remove('updated_values.yaml')
+        for chart_file_path, original_name in original_names.items():
+            revert_chart_name(chart_file_path, original_name)
 
     return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
 
