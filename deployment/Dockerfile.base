@@ -8,7 +8,7 @@ WORKDIR /app
 ENV TZ=Asia/Bangkok
 ENV OAI=https://github.com/adaptivenetworklab/AN-OPEN-NETRA-VNF.git
 RUN chmod go-r $KUBECONFIG && pip install --no-cache-dir -r /app/requirements.txt
-RUN chmod +x /app/deployment/oai-clone.sh && bash /app/deployment/oai-clone.sh
+# RUN chmod +x /app/deployment/oai-clone.sh && bash /app/deployment/oai-clone.sh
 
 #running service
 EXPOSE 8000
