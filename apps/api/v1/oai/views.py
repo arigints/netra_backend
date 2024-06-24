@@ -756,6 +756,14 @@ def config_single_cu(request):
         deployment = yaml.safe_load(deployment_yaml)
         replicas = deployment['spec'].get('replicas', 0)
 
+        # If replicas are 1, update the deployment YAML file
+        if replicas == 1:
+            with open(SINGLE_CU_DEPLOYMENT_FILE_PATH, 'r') as file:
+                deployment_yaml_content = yaml.safe_load(file)
+            deployment_yaml_content['spec']['replicas'] = 1
+            with open(SINGLE_CU_DEPLOYMENT_FILE_PATH, 'w') as file:
+                yaml.dump(deployment_yaml_content, file)
+
         # Iterate over expected fields and update if provided in JSON body
         expected_fields = {
             'cu_id': ['config', 'cuId'],
@@ -785,14 +793,6 @@ def config_single_cu(request):
         updated_values_yaml = yaml.dump(current_values)
         with open('updated_values.yaml', 'w') as temp_file:
             temp_file.write(updated_values_yaml)
-
-        # Modify the replicas only if it's currently 0
-        if replicas == 0:
-            with open(SINGLE_CU_DEPLOYMENT_FILE_PATH, 'r') as file:
-                deployment_yaml = yaml.safe_load(file)
-            deployment_yaml['spec']['replicas'] = 1
-            with open(SINGLE_CU_DEPLOYMENT_FILE_PATH, 'w') as file:
-                yaml.dump(deployment_yaml, file)
 
         # Execute Helm upgrade command with the updated values
         upgrade_command = [
