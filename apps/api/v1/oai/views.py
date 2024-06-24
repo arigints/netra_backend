@@ -29,6 +29,10 @@ SINGLE_UE_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-e2e/oai-nr-ue/')
 # MULTI_UE_UE1_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-ue/oai-nr-ue-1/')  
 # MULTI_UE_UE2_BASE_DIR = os.path.join(BASE_DIR, 'oai/oai-multi-ue/oai-nr-ue-2/') 
 
+SINGLE_CU_DEPLOYMENT_DIR = os.path.join(BASE_DIR, 'oai/oai-e2e/oai-cu/templates/')  
+SINGLE_DU_DEPLOYMENT_DIR = os.path.join(BASE_DIR, 'oai/oai-e2e/oai-du/templates/')  
+SINGLE_UE_DEPLOYMENT_DIR = os.path.join(BASE_DIR, 'oai/oai-e2e/oai-nr-ue/templates/')  
+
 SINGLE_CU_VALUES_FILE_PATH = os.path.join(SINGLE_CU_BASE_DIR, 'values.yaml')
 SINGLE_DU_VALUES_FILE_PATH = os.path.join(SINGLE_DU_BASE_DIR, 'values.yaml')
 SINGLE_UE_VALUES_FILE_PATH = os.path.join(SINGLE_UE_BASE_DIR, 'values.yaml')
@@ -58,6 +62,10 @@ SINGLE_UE_CHART_FILE_PATH = os.path.join(SINGLE_UE_BASE_DIR, 'Chart.yaml')
 # MULTI_UE_DU_CHART_FILE_PATH = os.path.join(MULTI_UE_DU_BASE_DIR, 'Chart.yaml')
 # MULTI_UE_UE1_CHART_FILE_PATH = os.path.join(MULTI_UE_UE1_BASE_DIR, 'Chart.yaml')
 # MULTI_UE_UE2_CHART_FILE_PATH = os.path.join(MULTI_UE_UE2_BASE_DIR, 'Chart.yaml')
+
+SINGLE_CU_DEPLOYMENT_FILE_PATH = os.path.join(SINGLE_CU_DEPLOYMENT_DIR, 'deployment.yaml')
+SINGLE_DU_DEPLOYMENT_FILE_PATH = os.path.join(SINGLE_DU_DEPLOYMENT_DIR, 'deployment.yaml')
+SINGLE_UE_DEPLOYMENT_FILE_PATH = os.path.join(SINGLE_UE_DEPLOYMENT_DIR, 'deployment.yaml')
 
 def update_chart_name(chart_file_path, username):
     with open(chart_file_path, 'r') as file:
@@ -728,6 +736,7 @@ def values_multiue_ue2(request):
 def config_single_cu(request):
     username = request.user.username
     namespace = f"{username}"
+    deployment_name = f"oai-cu-level1-{username}"
 
     # Store the original name and update with the new name
     with open(SINGLE_CU_CHART_FILE_PATH, 'r') as file:
@@ -740,6 +749,12 @@ def config_single_cu(request):
         get_values_command = ["helm", "get", "values", "single-cu", "--namespace", namespace, "--output", "yaml"]
         current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
         current_values = yaml.safe_load(current_values_yaml)
+
+        # Check the current replicas value
+        get_deployment_command = ["kubectl", "get", "deployment", deployment_name, "-n", namespace, "-o", "yaml"]
+        deployment_yaml = subprocess.check_output(get_deployment_command).decode("utf-8")
+        deployment = yaml.safe_load(deployment_yaml)
+        replicas = deployment['spec'].get('replicas', 0)
 
         # Iterate over expected fields and update if provided in JSON body
         expected_fields = {
@@ -770,6 +785,14 @@ def config_single_cu(request):
         updated_values_yaml = yaml.dump(current_values)
         with open('updated_values.yaml', 'w') as temp_file:
             temp_file.write(updated_values_yaml)
+
+        # Modify the replicas only if it's currently 0
+        if replicas == 0:
+            with open(SINGLE_CU_DEPLOYMENT_FILE_PATH, 'r') as file:
+                deployment_yaml = yaml.safe_load(file)
+            deployment_yaml['spec']['replicas'] = 1
+            with open(SINGLE_CU_DEPLOYMENT_FILE_PATH, 'w') as file:
+                yaml.dump(deployment_yaml, file)
 
         # Execute Helm upgrade command with the updated values
         upgrade_command = [
