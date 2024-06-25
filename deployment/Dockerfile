@@ -1,4 +1,4 @@
-FROM quay.tiplab.local/openetra/ubuntu:jammy
+FROM quay.tiplab.local/orca/ubuntu:jammy
 
 LABEL maintainer="gintingari73@gmail.com"
 
