@@ -736,7 +736,6 @@ def values_multiue_ue2(request):
 def config_single_cu(request):
     username = request.user.username
     namespace = f"{username}"
-    deployment_name = f"oai-cu-level1-{username}"
 
     # Store the original name and update with the new name
     with open(SINGLE_CU_CHART_FILE_PATH, 'r') as file:
@@ -749,12 +748,6 @@ def config_single_cu(request):
         get_values_command = ["helm", "get", "values", "single-cu", "--namespace", namespace, "--output", "yaml"]
         current_values_yaml = subprocess.check_output(get_values_command).decode("utf-8")
         current_values = yaml.safe_load(current_values_yaml)
-
-        # Check the current replicas value
-        get_deployment_command = ["kubectl", "get", "deployment", deployment_name, "-n", namespace, "-o", "yaml"]
-        deployment_yaml = subprocess.check_output(get_deployment_command).decode("utf-8")
-        deployment = yaml.safe_load(deployment_yaml)
-        replicas = deployment['status'].get('replicas', 0)
 
         # Iterate over expected fields and update if provided in JSON body
         expected_fields = {
@@ -786,14 +779,6 @@ def config_single_cu(request):
         with open('updated_values.yaml', 'w') as temp_file:
             temp_file.write(updated_values_yaml)
 
-        # Modify the replicas only if it's currently 0
-        if replicas == 1:
-            with open(SINGLE_CU_DEPLOYMENT_FILE_PATH, 'r') as file:
-                deployment_yaml = yaml.safe_load(file)
-            deployment_yaml['spec']['replicas'] = 1
-            with open(SINGLE_CU_DEPLOYMENT_FILE_PATH, 'w') as file:
-                yaml.dump(deployment_yaml, file)
-
         # Execute Helm upgrade command with the updated values
         upgrade_command = [
             "helm", "upgrade", "single-cu", SINGLE_CU_BASE_DIR,
@@ -801,6 +786,14 @@ def config_single_cu(request):
             "-f", 'updated_values.yaml'
         ]
         subprocess.run(upgrade_command, check=True)
+
+        # Scale the deployment to 1 replica
+        deployment_name = f"oai-cu-level1-{username}"
+        subprocess.run([
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
+            "--namespace=" + namespace
+        ], check=True)
+
         os.remove('updated_values.yaml')
 
         return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
@@ -867,6 +860,14 @@ def config_single_du(request):
             "-f", 'updated_values.yaml'
         ]
         subprocess.run(upgrade_command, check=True)
+
+        # Scale the deployment to 1 replica
+        deployment_name = f"oai-du-level1-{username}"
+        subprocess.run([
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
+            "--namespace=" + namespace
+        ], check=True)
+
         os.remove('updated_values.yaml')
 
         return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
@@ -930,6 +931,14 @@ def config_single_ue(request):
             "-f", 'updated_values.yaml'
         ]
         subprocess.run(upgrade_command, check=True)
+
+        # Scale the deployment to 1 replica
+        deployment_name = f"oai-nr-ue-level1-{username}"
+        subprocess.run([
+            "kubectl", "scale", "deployment", deployment_name, "--replicas=1",
+            "--namespace=" + namespace
+        ], check=True)
+
         os.remove('updated_values.yaml')
 
         return Response({"message": "Configuration Updated Successfully"}, status=status.HTTP_200_OK)
