@@ -9,6 +9,9 @@ class UserProfile(models.Model):
     level = models.IntegerField(default=1)
     completion = models.FloatField(default=0.0)
     session_key = models.CharField(max_length=40, blank=True, null=True)
+    cu_matches = models.IntegerField(default=0)
+    du_matches = models.IntegerField(default=0)
+    ue_matches = models.IntegerField(default=0)
 
     def __str__(self):
         return self.user.username

@@ -167,26 +167,53 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from apps.models import UserConfiguration
+from apps.models import UserConfiguration, UserProfile
 from django.http import JsonResponse
 import subprocess
 import yaml
+
+MATCH_INCREMENT = 100.0 / 33  # Increment per successful match
+
+def update_completion(user):
+    user_profile = UserProfile.objects.get(user=user)
+    total_matches = user_profile.cu_matches + user_profile.du_matches + user_profile.ue_matches
+    user_profile.completion = total_matches * MATCH_INCREMENT
+    user_profile.save()
+
+def compare_values(user, specific_values, db_values, component):
+    matches = {key: specific_values[key] == db_values[key] for key in specific_values.keys()}
+    match_count = sum(matches.values())
+
+    user_profile = UserProfile.objects.get(user=user)
+    if component == 'cu':
+        user_profile.cu_matches = match_count
+    elif component == 'du':
+        user_profile.du_matches = match_count
+    elif component == 'ue':
+        user_profile.ue_matches = match_count
+
+    user_profile.save()
+    update_completion(user)
+
+    if match_count == 0:
+        return 'failure', matches
+    elif match_count == len(matches):
+        return 'success', matches
+    else:
+        return 'partial success', matches
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def compare_cu_config(request):
     user_namespace = f"{request.user.username}"
 
-    # Execute helm get values command
     command = ["helm", "get", "values", "single-cu", "--namespace", user_namespace]
     try:
         helm_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
         values_yaml = helm_output.decode('utf-8')
 
-        # Convert YAML to JSON
         values_json = yaml.safe_load(values_yaml)
 
-        # Extract specific values
         specific_values = {
             'cuId': values_json.get('config', {}).get('cuId', ''),    
             'cellId': values_json.get('config', {}).get('cellId', ''),  
@@ -202,14 +229,12 @@ def compare_cu_config(request):
             'amfhost': values_json.get('config', {}).get('amfhost', '')
         }
 
-        # Fetch the user's configuration from the database
         user = request.user
         try:
             user_configuration = UserConfiguration.objects.get(user=user)
         except UserConfiguration.DoesNotExist:
             return Response({"error": "User configuration not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Compare the values
         db_values = {
             'cuId': user_configuration.cu_config.cuId,
             'cellId': user_configuration.cu_config.cellId,
@@ -225,12 +250,9 @@ def compare_cu_config(request):
             'amfhost': user_configuration.cu_config.amfhost
         }
 
-        matches = {key: specific_values[key] == db_values[key] for key in specific_values.keys()}
+        status, matches = compare_values(user, specific_values, db_values, 'cu')
 
-        if all(matches.values()):
-            return JsonResponse({'status': 'success', 'message': 'All configurations match', 'matches': matches})
-        else:
-            return JsonResponse({'status': 'failure', 'message': 'Configurations do not match', 'matches': matches})
+        return JsonResponse({'status': status, 'matches': matches})
 
     except subprocess.CalledProcessError as e:
         return JsonResponse({'error': 'Failed to retrieve Helm release values', 'details': e.output.decode('utf-8')}, status=500)
@@ -242,16 +264,13 @@ def compare_cu_config(request):
 def compare_du_config(request):
     user_namespace = f"{request.user.username}"
 
-    # Execute helm get values command
     command = ["helm", "get", "values", "single-du", "--namespace", user_namespace]
     try:
         helm_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
         values_yaml = helm_output.decode('utf-8')
 
-        # Convert YAML to JSON
         values_json = yaml.safe_load(values_yaml)
 
-        # Extract specific values
         specific_values = {
             'gnbId': values_json.get('config', {}).get('gnbId', ''),   
             'duId': values_json.get('config', {}).get('duId', ''),      
@@ -267,14 +286,12 @@ def compare_du_config(request):
             'cuHost': values_json.get('config', {}).get('cuHost', '')
         }
 
-        # Fetch the user's configuration from the database
         user = request.user
         try:
             user_configuration = UserConfiguration.objects.get(user=user)
         except UserConfiguration.DoesNotExist:
             return Response({"error": "User configuration not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Compare the values
         db_values = {
             'gnbId': user_configuration.du_config.gnbId,
             'duId': user_configuration.du_config.duId,
@@ -290,12 +307,9 @@ def compare_du_config(request):
             'cuHost': user_configuration.du_config.cuHost
         }
 
-        matches = {key: specific_values[key] == db_values[key] for key in specific_values.keys()}
+        status, matches = compare_values(user, specific_values, db_values, 'du')
 
-        if all(matches.values()):
-            return JsonResponse({'status': 'success', 'message': 'All configurations match', 'matches': matches})
-        else:
-            return JsonResponse({'status': 'failure', 'message': 'Configurations do not match', 'matches': matches})
+        return JsonResponse({'status': status, 'matches': matches})
 
     except subprocess.CalledProcessError as e:
         return JsonResponse({'error': 'Failed to retrieve Helm release values', 'details': e.output.decode('utf-8')}, status=500)
@@ -307,16 +321,13 @@ def compare_du_config(request):
 def compare_ue_config(request):
     user_namespace = f"{request.user.username}"
 
-    # Execute helm get values command
     command = ["helm", "get", "values", "single-ue", "--namespace", user_namespace]
     try:
         helm_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
         values_yaml = helm_output.decode('utf-8')
 
-        # Convert YAML to JSON
         values_json = yaml.safe_load(values_yaml)
 
-        # Extract specific values
         specific_values = {
             'multusIPadd': values_json.get('multus', {}).get('ipadd', ''),
             'rfSimServer': values_json.get('config', {}).get('rfSimServer', ''),
@@ -329,14 +340,12 @@ def compare_ue_config(request):
             'usrp': values_json.get('config', {}).get('usrp', '')
         }
 
-        # Fetch the user's configuration from the database
         user = request.user
         try:
             user_configuration = UserConfiguration.objects.get(user=user)
         except UserConfiguration.DoesNotExist:
             return Response({"error": "User configuration not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Compare the values
         db_values = {
             'multusIPadd': user_configuration.ue_config.multusIPadd,
             'rfSimServer': user_configuration.ue_config.rfSimServer,
@@ -349,12 +358,9 @@ def compare_ue_config(request):
             'usrp': user_configuration.ue_config.usrp
         }
 
-        matches = {key: specific_values[key] == db_values[key] for key in specific_values.keys()}
+        status, matches = compare_values(user, specific_values, db_values, 'ue')
 
-        if all(matches.values()):
-            return JsonResponse({'status': 'success', 'message': 'All configurations match', 'matches': matches})
-        else:
-            return JsonResponse({'status': 'failure', 'message': 'Configurations do not match', 'matches': matches})
+        return JsonResponse({'status': status, 'matches': matches})
 
     except subprocess.CalledProcessError as e:
         return JsonResponse({'error': 'Failed to retrieve Helm release values', 'details': e.output.decode('utf-8')}, status=500)
