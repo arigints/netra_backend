@@ -4,9 +4,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('start_sniffing/', views.start_sniffing, name='start_sniffing'),
-    path('stop_sniffing/', views.stop_sniffing, name='stop_sniffing'),
-    path('get_packets/<str:pod_name>/', views.get_packets, name='get_packets'),
+    path('start_sniffing/<str:pod_name>/', views.start_sniffing, name='start_sniffing'),
+    path('check_sniffing_status/<str:sniffing_id>/', views.check_sniffing_status, name='check_sniffing_status'),
+    path('stop_sniffing/<str:pod_name>/', views.stop_sniffing, name='stop_sniffing'),
     path('testv1/<str:pod_name>/', views.capture_and_return_packets, name='testv1'),
     path('protocolstack/<str:pod_name>/', views.capture_and_return_packets_no_save, name='protocolstack'),
     path('pcap_files/', views.list_pcap_files, name='list_pcap_files'),

@@ -147,176 +147,102 @@ def list_pcap_files(request):
 
 ###################################################################################
 
+import threading
 import subprocess
 import json
-import asyncio
-import logging
-import tempfile
 from datetime import datetime
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
+from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from apps.models import PcapFile
-from apps.serializers import PcapFileSerializer
+from apps.models import PcapFile  # Import your PcapFile model
+from apps.serializers import PcapFileSerializer  # Import your PcapFileSerializer
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-
-capture_processes = {}
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def start_sniffing(request):
-    try:
-        pod_name = request.data.get('pod_name')
-        namespace = request.user.username
-        group_name = f"packets_{namespace}_{pod_name}"
-
-        logger.debug(f"Starting packet sniffing for pod: {pod_name} in namespace: {namespace}")
-
-        # Start the packet capture asynchronously
-        async_to_sync(start_capture)(namespace, pod_name, group_name, request.user.id)
-
-        return Response({"message": "Packet sniffing started"}, status=200)
-    except Exception as e:
-        logger.error(f"Error in start_sniffing: {str(e)}")
-        return Response({"error": str(e)}, status=500)
-
-async def start_capture(namespace, pod_name, group_name, user_id):
-    channel_layer = get_channel_layer()
-    logger.debug(f"Starting async capture for pod: {pod_name} in namespace: {namespace}")
-
-    async def capture_packets():
-        capture_cmd = f"kubectl sniff -n {namespace} {pod_name} -o -"
-        capture_process = await asyncio.create_subprocess_shell(
-            capture_cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        capture_processes[pod_name] = capture_process
-
-        logger.debug(f"Capture process started for pod: {pod_name}")
-
-        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-            try:
-                while True:
-                    output = await capture_process.stdout.read(1024)
-                    if not output:
-                        break
-                    temp_file.write(output)
-
-                temp_file.flush()
-                temp_file.seek(0)
-
-                logger.debug(f"Temporary file created at {temp_file.name} with captured packets.")
-
-                pcap_filename = f"{namespace}_{pod_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pcap"
-                with open(temp_file.name, 'rb') as pcap_file:
-                    pcap_data = pcap_file.read()
-
-                try:
-                    # Save the captured packets directly to the database
-                    pcap_file_record = PcapFile.objects.create(
-                        user_id=user_id,
-                        filename=pcap_filename,
-                        file_data=pcap_data,
-                        file_size=len(pcap_data)
-                    )
-                    logger.debug(f"PCAP file saved to database with id: {pcap_file_record.id}")
-
-                    parse_cmd = ["tshark", "-r", temp_file.name, "-Y", "nas-5gs or f1ap or ngap or sctp or pfcp or gtp or tcp or dhcp or udp", "-T", "json"]
-                    parse_process = await asyncio.create_subprocess_exec(
-                        *parse_cmd,
-                        stdout=asyncio.subprocess.PIPE,
-                        stderr=asyncio.subprocess.PIPE
-                    )
-                    parse_result, parse_stderr = await parse_process.communicate()
-
-                    if parse_process.returncode != 0:
-                        error_message = f"Parsing command failed. Return code: {parse_process.returncode}. STDERR: {parse_stderr.decode('utf-8')}"
-                        logger.error(error_message)
-                        await channel_layer.group_send(
-                            group_name,
-                            {
-                                "type": "packet_message",
-                                "message": {"error": error_message}
-                            }
-                        )
-                        return
-
-                    packets = json.loads(parse_result.decode('utf-8'))
-                    logger.debug(f"Packets parsed successfully: {packets}")
-                    await channel_layer.group_send(
-                        group_name,
-                        {
-                            "type": "packet_message",
-                            "message": {"packets": packets}
-                        }
-                    )
-
-                    # Return the captured packets in the response
-                    return packets
-
-                except Exception as e:
-                    logger.error(f"Error saving PCAP file to database: {str(e)}")
-                    return []
-            finally:
-                temp_file.close()
-
-    try:
-        packets = await capture_packets()
-        return packets
-    except Exception as e:
-        logger.error(f"Error in start_capture: {str(e)}")
-        return []
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def stop_sniffing(request):
-    try:
-        pod_name = request.data.get('pod_name')
-        namespace = request.user.username
-
-        logger.debug(f"Stopping packet sniffing for pod: {pod_name} in namespace: {namespace}")
-
-        capture_process = capture_processes.pop(pod_name, None)
-        if capture_process:
-            capture_process.terminate()
-
-        return Response({"message": "Packet sniffing stopped"}, status=200)
-    except Exception as e:
-        logger.error(f"Error in stop_sniffing: {str(e)}")
-        return Response({"error": str(e)}, status=500)
+# Dictionary to hold running sniffing threads and their results
+sniffing_threads = {}
+sniffing_results = {}
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_packets(request, pod_name):
+def start_sniffing(request, pod_name):
+    namespace = f"{request.user.username}"
+    sniffing_id = f"{namespace}_{pod_name}"
+    pcap_filename = f"{namespace}_{pod_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pcap"
+
+    def sniff_packets():
+        capture_cmd = f"kubectl sniff -n {namespace} {pod_name} -o - | tshark -i - -Y 'nas-5gs or f1ap or ngap or sctp or pfcp or gtp or tcp or dhcp or udp' -T ek"
+        process = subprocess.Popen(capture_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1, universal_newlines=True)
+
+        sniffing_threads[sniffing_id] = process
+        sniffing_results[sniffing_id] = {"packets": [], "status": "running"}
+
+        try:
+            for line in process.stdout:
+                line = line.strip()
+                if line.startswith('{') and line.endswith('}'):
+                    try:
+                        packet = json.loads(line)
+                        sniffing_results[sniffing_id]["packets"].append(packet)
+                    except json.JSONDecodeError as e:
+                        # Log the invalid JSON line for debugging
+                        print(f"Invalid JSON line: {line}, error: {str(e)}")
+
+            process.wait()
+            if process.returncode != 0:
+                error_message = f"Command failed or produced no output. Return code: {process.returncode}. STDERR: {process.stderr.read()}"
+                sniffing_results[sniffing_id] = {"error": error_message, "status": "failed"}
+            else:
+                sniffing_results[sniffing_id]["status"] = "completed"
+        except Exception as e:
+            sniffing_results[sniffing_id] = {"error": f"Unexpected error: {str(e)}", "status": "failed"}
+
+    thread = threading.Thread(target=sniff_packets)
+    thread.start()
+
+    return JsonResponse({"message": "Packet sniffing started successfully", "sniffing_id": sniffing_id})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def stop_sniffing(request, pod_name):
+    namespace = f"{request.user.username}"
+    sniffing_id = f"{namespace}_{pod_name}"
+    pcap_filename = f"{namespace}_{pod_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pcap"
+
+    if sniffing_id in sniffing_threads:
+        process = sniffing_threads[sniffing_id]
+        process.terminate()
+        process.wait()
+        del sniffing_threads[sniffing_id]
+
+        if sniffing_id in sniffing_results:
+            pcap_data = json.dumps(sniffing_results[sniffing_id]["packets"]).encode('utf-8')
+
+            # Save the captured packets directly to the database
+            pcap_file = PcapFile.objects.create(
+                user=request.user,
+                filename=pcap_filename,
+                file_data=pcap_data,
+                file_size=len(pcap_data)
+            )
+
+            # Serialize the PcapFile object
+            serializer = PcapFileSerializer(pcap_file)
+
+            sniffing_results[sniffing_id]["status"] = "stopped"
+            sniffing_results[sniffing_id]["pcap_file"] = serializer.data
+
+        return JsonResponse({"message": "Packet sniffing stopped successfully", "pcap_file": sniffing_results[sniffing_id].get("pcap_file", {})})
+    else:
+        return JsonResponse({"error": "No active sniffing process for this pod"}, status=400)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_sniffing_status(request, sniffing_id):
     try:
-        namespace = request.user.username
-        pcap_file_record = PcapFile.objects.filter(user=request.user, filename__icontains=pod_name).latest('created_at')
-
-        parse_cmd = ["tshark", "-r", "-", "-T", "json"]
-        parse_process = subprocess.Popen(
-            parse_cmd,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        parse_result, parse_stderr = parse_process.communicate(input=pcap_file_record.file_data)
-
-        if parse_process.returncode != 0:
-            error_message = f"Parsing command failed. Return code: {parse_process.returncode}. STDERR: {parse_stderr.decode('utf-8')}"
-            logger.error(error_message)
-            return Response({"error": error_message}, status=500)
-
-        packets = json.loads(parse_result.decode('utf-8'))
-        return Response({"packets": packets}, status=200)
-
+        if sniffing_id in sniffing_results:
+            return JsonResponse(sniffing_results[sniffing_id])
+        else:
+            return JsonResponse({"message": "Sniffing process not found"}, status=404)
     except Exception as e:
-        logger.error(f"Error in get_packets: {str(e)}")
-        return Response({"error": str(e)}, status=500)
-
+        return JsonResponse({"error": f"Unexpected error: {str(e)}"}, status=500)
 
