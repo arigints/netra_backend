@@ -9,7 +9,3 @@ class PcapFileAdmin(admin.ModelAdmin):
     list_filter = ('created_at', 'user')
 
 admin.site.register(PcapFile, PcapFileAdmin)
-
-
-
-
