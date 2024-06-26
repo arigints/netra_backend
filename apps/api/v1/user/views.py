@@ -162,3 +162,201 @@ def get_user_information(request):
     user = request.user
     serializer = UserInformationSerializer(user)
     return Response(serializer.data)
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from apps.models import UserConfiguration
+from django.http import JsonResponse
+import subprocess
+import yaml
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def compare_cu_config(request):
+    user_namespace = f"{request.user.username}"
+
+    # Execute helm get values command
+    command = ["helm", "get", "values", "single-cu", "--namespace", user_namespace]
+    try:
+        helm_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
+        values_yaml = helm_output.decode('utf-8')
+
+        # Convert YAML to JSON
+        values_json = yaml.safe_load(values_yaml)
+
+        # Extract specific values
+        specific_values = {
+            'cuId': values_json.get('config', {}).get('cuId', ''),    
+            'cellId': values_json.get('config', {}).get('cellId', ''),  
+            'f1InterfaceIPadd': values_json.get('multus', {}).get('f1Interface', {}).get('IPadd', ''),
+            'f1cuPort': values_json.get('config', {}).get('f1cuPort', ''),
+            'f1duPort': values_json.get('config', {}).get('f1duPort', ''),
+            'n2InterfaceIPadd': values_json.get('multus', {}).get('n2Interface', {}).get('IPadd', ''),
+            'n3InterfaceIPadd': values_json.get('multus', {}).get('n3Interface', {}).get('IPadd', ''),
+            'mcc': values_json.get('config', {}).get('mcc', ''),
+            'mnc': values_json.get('config', {}).get('mnc', ''),
+            'tac': values_json.get('config', {}).get('tac', ''),
+            'sst': values_json.get('config', {}).get('sst', ''),
+            'amfhost': values_json.get('config', {}).get('amfhost', '')
+        }
+
+        # Fetch the user's configuration from the database
+        user = request.user
+        try:
+            user_configuration = UserConfiguration.objects.get(user=user)
+        except UserConfiguration.DoesNotExist:
+            return Response({"error": "User configuration not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Compare the values
+        db_values = {
+            'cuId': user_configuration.cu_config.cuId,
+            'cellId': user_configuration.cu_config.cellId,
+            'f1InterfaceIPadd': user_configuration.cu_config.f1InterfaceIPadd,
+            'f1cuPort': user_configuration.cu_config.f1cuPort,
+            'f1duPort': user_configuration.cu_config.f1duPort,
+            'n2InterfaceIPadd': user_configuration.cu_config.n2InterfaceIPadd,
+            'n3InterfaceIPadd': user_configuration.cu_config.n3InterfaceIPadd,
+            'mcc': user_configuration.cu_config.mcc,
+            'mnc': user_configuration.cu_config.mnc,
+            'tac': user_configuration.cu_config.tac,
+            'sst': user_configuration.cu_config.sst,
+            'amfhost': user_configuration.cu_config.amfhost
+        }
+
+        matches = {key: specific_values[key] == db_values[key] for key in specific_values.keys()}
+
+        if all(matches.values()):
+            return JsonResponse({'status': 'success', 'message': 'All configurations match', 'matches': matches})
+        else:
+            return JsonResponse({'status': 'failure', 'message': 'Configurations do not match', 'matches': matches})
+
+    except subprocess.CalledProcessError as e:
+        return JsonResponse({'error': 'Failed to retrieve Helm release values', 'details': e.output.decode('utf-8')}, status=500)
+    except Exception as e:
+        return JsonResponse({'error': 'An unexpected error occurred', 'details': str(e)}, status=500)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def compare_du_config(request):
+    user_namespace = f"{request.user.username}"
+
+    # Execute helm get values command
+    command = ["helm", "get", "values", "single-du", "--namespace", user_namespace]
+    try:
+        helm_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
+        values_yaml = helm_output.decode('utf-8')
+
+        # Convert YAML to JSON
+        values_json = yaml.safe_load(values_yaml)
+
+        # Extract specific values
+        specific_values = {
+            'gnbId': values_json.get('config', {}).get('gnbId', ''),   
+            'duId': values_json.get('config', {}).get('duId', ''),      
+            'cellId': values_json.get('config', {}).get('cellId', ''),
+            'f1InterfaceIPadd': values_json.get('multus', {}).get('f1Interface', {}).get('IPadd', ''),
+            'f1cuPort': values_json.get('config', {}).get('f1cuPort', ''),
+            'f1duPort': values_json.get('config', {}).get('f1duPort', ''),
+            'mcc': values_json.get('config', {}).get('mcc', ''),
+            'mnc': values_json.get('config', {}).get('mnc', ''),
+            'tac': values_json.get('config', {}).get('tac', ''),
+            'sst': values_json.get('config', {}).get('sst', ''),
+            'usrp': values_json.get('config', {}).get('usrp', ''),
+            'cuHost': values_json.get('config', {}).get('cuHost', '')
+        }
+
+        # Fetch the user's configuration from the database
+        user = request.user
+        try:
+            user_configuration = UserConfiguration.objects.get(user=user)
+        except UserConfiguration.DoesNotExist:
+            return Response({"error": "User configuration not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Compare the values
+        db_values = {
+            'gnbId': user_configuration.du_config.gnbId,
+            'duId': user_configuration.du_config.duId,
+            'cellId': user_configuration.du_config.cellId,
+            'f1InterfaceIPadd': user_configuration.du_config.f1InterfaceIPadd,
+            'f1cuPort': user_configuration.du_config.f1cuPort,
+            'f1duPort': user_configuration.du_config.f1duPort,
+            'mcc': user_configuration.du_config.mcc,
+            'mnc': user_configuration.du_config.mnc,
+            'tac': user_configuration.du_config.tac,
+            'sst': user_configuration.du_config.sst,
+            'usrp': user_configuration.du_config.usrp,
+            'cuHost': user_configuration.du_config.cuHost
+        }
+
+        matches = {key: specific_values[key] == db_values[key] for key in specific_values.keys()}
+
+        if all(matches.values()):
+            return JsonResponse({'status': 'success', 'message': 'All configurations match', 'matches': matches})
+        else:
+            return JsonResponse({'status': 'failure', 'message': 'Configurations do not match', 'matches': matches})
+
+    except subprocess.CalledProcessError as e:
+        return JsonResponse({'error': 'Failed to retrieve Helm release values', 'details': e.output.decode('utf-8')}, status=500)
+    except Exception as e:
+        return JsonResponse({'error': 'An unexpected error occurred', 'details': str(e)}, status=500)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def compare_ue_config(request):
+    user_namespace = f"{request.user.username}"
+
+    # Execute helm get values command
+    command = ["helm", "get", "values", "single-ue", "--namespace", user_namespace]
+    try:
+        helm_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
+        values_yaml = helm_output.decode('utf-8')
+
+        # Convert YAML to JSON
+        values_json = yaml.safe_load(values_yaml)
+
+        # Extract specific values
+        specific_values = {
+            'multusIPadd': values_json.get('multus', {}).get('ipadd', ''),
+            'rfSimServer': values_json.get('config', {}).get('rfSimServer', ''),
+            'fullImsi': values_json.get('config', {}).get('fullImsi', ''),
+            'fullKey': values_json.get('config', {}).get('fullKey', ''),
+            'opc': values_json.get('config', {}).get('opc', ''),
+            'dnn': values_json.get('config', {}).get('dnn', ''),
+            'sst': values_json.get('config', {}).get('sst', ''),
+            'sd': values_json.get('config', {}).get('sd', ''),
+            'usrp': values_json.get('config', {}).get('usrp', '')
+        }
+
+        # Fetch the user's configuration from the database
+        user = request.user
+        try:
+            user_configuration = UserConfiguration.objects.get(user=user)
+        except UserConfiguration.DoesNotExist:
+            return Response({"error": "User configuration not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Compare the values
+        db_values = {
+            'multusIPadd': user_configuration.ue_config.multusIPadd,
+            'rfSimServer': user_configuration.ue_config.rfSimServer,
+            'fullImsi': user_configuration.ue_config.fullImsi,
+            'fullKey': user_configuration.ue_config.fullKey,
+            'opc': user_configuration.ue_config.opc,
+            'dnn': user_configuration.ue_config.dnn,
+            'sst': user_configuration.ue_config.sst,
+            'sd': user_configuration.ue_config.sd,
+            'usrp': user_configuration.ue_config.usrp
+        }
+
+        matches = {key: specific_values[key] == db_values[key] for key in specific_values.keys()}
+
+        if all(matches.values()):
+            return JsonResponse({'status': 'success', 'message': 'All configurations match', 'matches': matches})
+        else:
+            return JsonResponse({'status': 'failure', 'message': 'Configurations do not match', 'matches': matches})
+
+    except subprocess.CalledProcessError as e:
+        return JsonResponse({'error': 'Failed to retrieve Helm release values', 'details': e.output.decode('utf-8')}, status=500)
+    except Exception as e:
+        return JsonResponse({'error': 'An unexpected error occurred', 'details': str(e)}, status=500)
