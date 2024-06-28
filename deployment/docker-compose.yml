@@ -13,6 +13,9 @@ services:
       - POSTGRES_DB=orcadb
   backend:
     image: quay.tiplab.local/orca/be:dev
+    cap_add:
+    - NET_RAW
+    - NET_ADMIN
     ports:
       - 8000:8000
       
