@@ -15,3 +15,4 @@ services:
     image: quay.tiplab.local/orca/be:dev
     ports:
       - 8000:8000
+      
