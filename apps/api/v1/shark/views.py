@@ -7,7 +7,7 @@ from apps.serializers import PcapFileSerializer
 import os
 import subprocess
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -157,10 +157,18 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from apps.models import PcapFile  # Import your PcapFile model
 from apps.serializers import PcapFileSerializer  # Import your PcapFileSerializer
+import pytz
 
 # Dictionary to hold running sniffing threads and their results
 sniffing_threads = {}
 sniffing_results = {}
+
+def convert_timestamp(timestamp):
+    """Convert milliseconds since epoch to a human-readable date-time string in Jakarta timezone."""
+    utc_dt = datetime.fromtimestamp(int(timestamp) / 1000.0, tz=timezone.utc)
+    jakarta_tz = pytz.timezone('Asia/Jakarta')
+    jakarta_dt = utc_dt.astimezone(jakarta_tz)
+    return jakarta_dt.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]  # Format with milliseconds
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -182,9 +190,11 @@ def start_sniffing(request, pod_name):
                 if line.startswith('{') and line.endswith('}'):
                     try:
                         packet = json.loads(line)
+                        # Convert the timestamp
+                        if 'timestamp' in packet:
+                            packet['timestamp'] = convert_timestamp(packet['timestamp'])
                         sniffing_results[sniffing_id]["packets"].append(packet)
                     except json.JSONDecodeError as e:
-                        # Log the invalid JSON line for debugging
                         print(f"Invalid JSON line: {line}, error: {str(e)}")
 
             process.wait()
