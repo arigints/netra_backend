@@ -26,7 +26,7 @@ imagePullSecrets:
 multus:
   create: true
   ipadd: ""
-  netmask: "28"
+  netmask: "29"
   defaultGateway: ""
   hostInterface: "ens33"
 

@@ -18,7 +18,7 @@ multus:
   f1Interface:
     create: true
     IPadd: ""
-    Netmask: "28"
+    Netmask: "29"
     hostInterface: "ens33"     
   n2Interface:
     create: true

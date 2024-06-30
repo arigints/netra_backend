@@ -31,7 +31,7 @@ multus:
   f1Interface:
     create: true
     IPadd: ""
-    Netmask: "28"
+    Netmask: "29"
     hostInterface: "ens33"      
   ruInterface:            #Only needed if using a ethernet based RU/USRP
     create: false
