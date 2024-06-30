@@ -47,6 +47,30 @@ spec:
       containers:
       - name: nr-ue
         image: "{{ .Values.nfimage.repository }}:{{ .Values.nfimage.version }}"
+        lifecycle:
+          postStart:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  while true; do
+                    if ip link show oaitun_ue1 > /dev/null 2>&1; then
+                      if ip addr show oaitun_ue1 | grep -q 'inet '; then
+                        if ! ip route show default dev oaitun_ue1 > /dev/null 2>&1; then
+                          ip route add default dev oaitun_ue1
+                          echo "Default route added via oaitun_ue1"
+                        else
+                          echo "Default route already exists via oaitun_ue1"
+                        fi
+                      else
+                        echo "oaitun_ue1 interface does not have an IP address"
+                      fi
+                    else
+                      echo "oaitun_ue1 interface does not exist"
+                    fi
+                    sleep 5
+                  done
         volumeMounts:
           - mountPath: /opt/oai-nr-ue/etc
             name: configuration
@@ -84,17 +108,6 @@ spec:
             {{- else}}
               exec  /opt/oai-nr-ue/bin/nr-uesoftmodem -O /opt/oai-nr-ue/etc/nr-ue.conf $USE_ADDITIONAL_OPTIONS;
             {{- end }}
-            while true; do
-              if ip link show tun0 > /dev/null 2>&1; then
-                if ! ip route show default dev tun0 > /dev/null 2>&1; then
-                  ip route add default dev tun0
-                  echo "Default route added via tun0"
-                fi
-              else
-                echo "tun0 interface does not exist"
-              fi
-              sleep 5
-            done;
         {{- else}}
         command:
           - /bin/sleep
