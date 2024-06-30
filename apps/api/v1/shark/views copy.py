@@ -147,31 +147,28 @@ def list_pcap_files(request):
 
 ###################################################################################
 
-import os
-import subprocess
 import threading
+import subprocess
 import json
-import logging
 from datetime import datetime
-from time import sleep
 from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from apps.models import PcapFile  # Import your PcapFile model
-from apps.serializers import PcapFileSerializer  # Import your serializer
+from apps.serializers import PcapFileSerializer  # Import your PcapFileSerializer
+import pytz
 
-# Set up logging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-handler = logging.StreamHandler()
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-
+# Dictionary to hold running sniffing threads and their results
 sniffing_threads = {}
 sniffing_results = {}
-pcap_files = {}  # Dictionary to store the file paths of pcap files
+
+def convert_timestamp(timestamp):
+    """Convert milliseconds since epoch to a human-readable date-time string in Jakarta timezone."""
+    utc_dt = datetime.fromtimestamp(int(timestamp) / 1000.0, tz=timezone.utc)
+    jakarta_tz = pytz.timezone('Asia/Jakarta')
+    jakarta_dt = utc_dt.astimezone(jakarta_tz)
+    return jakarta_dt.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]  # Format with milliseconds
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -179,50 +176,74 @@ def start_sniffing(request, pod_name):
     namespace = f"{request.user.username}"
     sniffing_id = f"{namespace}_{pod_name}"
     pcap_filename = f"{namespace}_{pod_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pcap"
-    pcap_file_path = f"/tmp/{pcap_filename}"  # Temporary path for pcap file
-    pcap_files[sniffing_id] = pcap_file_path  # Store the file path
-
-    logger.debug(f"Starting packet sniffing for {sniffing_id}, saving to {pcap_file_path}")
 
     def sniff_packets():
-        capture_cmd = f"kubectl sniff -n {namespace} {pod_name} -o {pcap_file_path}"
-        process = subprocess.Popen(capture_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        
+        capture_cmd = f"kubectl sniff -n {namespace} {pod_name} -o - | tshark -i - -Y 'nas-5gs or f1ap or ngap or sctp or pfcp or gtp or tcp or dhcp or udp' -T ek"
+        process = subprocess.Popen(capture_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1, universal_newlines=True)
+
         sniffing_threads[sniffing_id] = process
         sniffing_results[sniffing_id] = {"packets": [], "status": "running"}
-        
-        process.wait()
-        if process.returncode != 0:
-            error_message = f"Command failed or produced no output. Return code: {process.returncode}. STDERR: {process.stderr.read()}"
-            logger.error(error_message)
-            sniffing_results[sniffing_id] = {"error": error_message, "status": "failed"}
-        else:
-            sniffing_results[sniffing_id]["status"] = "completed"
-            logger.debug(f"Packet sniffing completed for {sniffing_id}")
 
-    def process_packets():
-        while sniffing_results[sniffing_id]["status"] == "running":
-            parse_cmd = f"tshark -r {pcap_file_path} -Y 'nas-5gs or f1ap or ngap or sctp or pfcp or gtp or tcp or dhcp or udp' -T json"
-            parse_result = subprocess.run(parse_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        try:
+            for line in process.stdout:
+                line = line.strip()
+                if line.startswith('{') and line.endswith('}'):
+                    try:
+                        packet = json.loads(line)
+                        # Convert the timestamp
+                        if 'timestamp' in packet:
+                            packet['timestamp'] = convert_timestamp(packet['timestamp'])
+                        sniffing_results[sniffing_id]["packets"].append(packet)
+                    except json.JSONDecodeError as e:
+                        print(f"Invalid JSON line: {line}, error: {str(e)}")
 
-            if parse_result.returncode == 0:
-                packets = json.loads(parse_result.stdout.decode('utf-8'))
-                if 'packets' in sniffing_results[sniffing_id]:
-                    sniffing_results[sniffing_id]["packets"].extend(packets)
-                    logger.debug(f"Processed {len(packets)} packets for {sniffing_id}")
-                else:
-                    logger.error(f"Key 'packets' not found in sniffing_results[{sniffing_id}]")
+            process.wait()
+            if process.returncode != 0:
+                error_message = f"Command failed or produced no output. Return code: {process.returncode}. STDERR: {process.stderr.read()}"
+                sniffing_results[sniffing_id] = {"error": error_message, "status": "failed"}
             else:
-                logger.error(f"Packet processing failed for {sniffing_id}. Return code: {parse_result.returncode}")
-            sleep(5)  # Poll every 5 seconds
+                sniffing_results[sniffing_id]["status"] = "completed"
+        except Exception as e:
+            sniffing_results[sniffing_id] = {"error": f"Unexpected error: {str(e)}", "status": "failed"}
 
-    capture_thread = threading.Thread(target=sniff_packets)
-    capture_thread.start()
-
-    process_thread = threading.Thread(target=process_packets)
-    process_thread.start()
+    thread = threading.Thread(target=sniff_packets)
+    thread.start()
 
     return JsonResponse({"message": "Packet sniffing started successfully", "sniffing_id": sniffing_id})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def stop_sniffing(request, pod_name):
+    namespace = f"{request.user.username}"
+    sniffing_id = f"{namespace}_{pod_name}"
+    pcap_filename = f"{namespace}_{pod_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pcap"
+
+    if sniffing_id in sniffing_threads:
+        process = sniffing_threads[sniffing_id]
+        process.terminate()
+        process.wait()
+        del sniffing_threads[sniffing_id]
+
+        if sniffing_id in sniffing_results:
+            pcap_data = json.dumps(sniffing_results[sniffing_id]["packets"]).encode('utf-8')
+
+            # Save the captured packets directly to the database
+            pcap_file = PcapFile.objects.create(
+                user=request.user,
+                filename=pcap_filename,
+                file_data=pcap_data,
+                file_size=len(pcap_data)
+            )
+
+            # Serialize the PcapFile object
+            serializer = PcapFileSerializer(pcap_file)
+
+            sniffing_results[sniffing_id]["status"] = "stopped"
+            sniffing_results[sniffing_id]["pcap_file"] = serializer.data
+
+        return JsonResponse({"message": "Packet sniffing stopped successfully", "pcap_file": sniffing_results[sniffing_id].get("pcap_file", {})})
+    else:
+        return JsonResponse({"error": "No active sniffing process for this pod"}, status=400)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -233,55 +254,5 @@ def check_sniffing_status(request, sniffing_id):
         else:
             return JsonResponse({"message": "Sniffing process not found"}, status=404)
     except Exception as e:
-        logger.error(f"Unexpected error checking sniffing status: {str(e)}")
         return JsonResponse({"error": f"Unexpected error: {str(e)}"}, status=500)
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def stop_sniffing(request, sniffing_id):
-    try:
-        if sniffing_id in sniffing_threads:
-            process = sniffing_threads[sniffing_id]
-            process.terminate()
-            process.wait()  # Ensure the process has terminated
-
-            sniffing_results[sniffing_id]["status"] = "stopped"
-            logger.debug(f"Packet sniffing stopped for {sniffing_id}")
-
-            # Save the pcap file to the database if not already saved
-            if "pcap_file_id" not in sniffing_results[sniffing_id]:
-                if sniffing_id in pcap_files:
-                    pcap_file_path = pcap_files[sniffing_id]
-
-                    if os.path.exists(pcap_file_path):
-                        try:
-                            with open(pcap_file_path, 'rb') as f:
-                                pcap_data = f.read()
-                            logger.debug(f"Read pcap file {pcap_file_path} for {sniffing_id}")
-
-                            # Save the pcap file directly to the database
-                            pcap_file = PcapFile.objects.create(
-                                user=request.user,
-                                filename=os.path.basename(pcap_file_path),
-                                file_data=pcap_data,
-                                file_size=len(pcap_data)
-                            )
-                            logger.debug(f"Saved pcap file to database for {sniffing_id}")
-
-                            sniffing_results[sniffing_id]["pcap_file_id"] = pcap_file.id
-                        except Exception as e:
-                            error_message = f"Failed to save pcap file: {str(e)}"
-                            logger.error(error_message)
-                            sniffing_results[sniffing_id] = {"error": error_message, "status": "failed"}
-                    else:
-                        error_message = f"PCAP file not found: {pcap_file_path}"
-                        logger.error(error_message)
-                        sniffing_results[sniffing_id] = {"error": error_message, "status": "failed"}
-
-            return JsonResponse({"message": "Packet sniffing stopped successfully", "sniffing_id": sniffing_id})
-        else:
-            logger.error(f"Sniffing process not found for {sniffing_id}")
-            return JsonResponse({"message": "Sniffing process not found"}, status=404)
-    except Exception as e:
-        logger.error(f"Unexpected error stopping sniffing: {str(e)}")
-        return JsonResponse({"error": f"Unexpected error: {str(e)}"}, status=500)
