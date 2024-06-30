@@ -33,44 +33,44 @@ spec:
       imagePullSecrets:
         - name: {{ .Values.imagePullSecrets.name }}
     {{- end }}
-      initContainers:
-      - name: init-remove-default-route
-        image: busybox
-        securityContext:
-          capabilities:
-            add: ["NET_ADMIN"]
-        command:
-        - sh
-        - -c
-        - |
-          ip route del default
+      #initContainers:
+      #- name: init-remove-default-route
+      #  image: busybox
+      #  securityContext:
+      #    capabilities:
+      #      add: ["NET_ADMIN"]
+      #  command:
+      #  - sh
+      #  - -c
+      #  - |
+      #    ip route del default
       containers:
       - name: nr-ue
         image: "{{ .Values.nfimage.repository }}:{{ .Values.nfimage.version }}"
-        lifecycle:
-          postStart:
-            exec:
-              command:
-                - /bin/sh
-                - -c
-                - |
-                  while true; do
-                    if ip link show oaitun_ue1 > /dev/null 2>&1; then
-                      if ip addr show oaitun_ue1 | grep -q 'inet '; then
-                        if ! ip route show default dev oaitun_ue1 > /dev/null 2>&1; then
-                          ip route add default dev oaitun_ue1
-                          echo "Default route added via oaitun_ue1"
-                        else
-                          echo "Default route already exists via oaitun_ue1"
-                        fi
-                      else
-                        echo "oaitun_ue1 interface does not have an IP address"
-                      fi
-                    else
-                      echo "oaitun_ue1 interface does not exist"
-                    fi
-                    sleep 5
-                  done
+        #lifecycle:
+        #  postStart:
+        #    exec:
+        #      command:
+        #        - /bin/sh
+        #        - -c
+        #        - |
+        #          while true; do
+        #            if ip link show oaitun_ue1 > /dev/null 2>&1; then
+        #              if ip addr show oaitun_ue1 | grep -q 'inet '; then
+        #                if ! ip route show default dev oaitun_ue1 > /dev/null 2>&1; then
+        #                  ip route add default dev oaitun_ue1
+        #                  echo "Default route added via oaitun_ue1"
+        #                else
+        #                  echo "Default route already exists via oaitun_ue1"
+        #                fi
+        #              else
+        #                echo "oaitun_ue1 interface does not have an IP address"
+        #              fi
+        #            else
+        #              echo "oaitun_ue1 interface does not exist"
+        #            fi
+        #            sleep 5
+        #          done
         volumeMounts:
           - mountPath: /opt/oai-nr-ue/etc
             name: configuration
