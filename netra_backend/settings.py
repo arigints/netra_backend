@@ -222,3 +222,5 @@ CORS_ALLOW_HEADERS = [
     "content-type",
     "x-csrftoken",
 ]
+
+CSRF_TRUDTED_ORIGINS = ['https://arigints.my.id']
