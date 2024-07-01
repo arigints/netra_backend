@@ -147,31 +147,23 @@ def list_pcap_files(request):
 
 ###################################################################################
 
-import os
-import subprocess
-import threading
 import json
 import logging
+import subprocess
+import threading
 from datetime import datetime
 from time import sleep
+
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from apps.models import PcapFile  # Import your PcapFile model
-from apps.serializers import PcapFileSerializer  # Import your serializer
 
-# Set up logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-handler = logging.StreamHandler()
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-
-sniffing_threads = {}
 sniffing_results = {}
-pcap_files = {}  # Dictionary to store the file paths of pcap files
+sniffing_threads = {}
+pcap_files = {}
+lock = threading.Lock()
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -188,32 +180,38 @@ def start_sniffing(request, pod_name):
         capture_cmd = f"kubectl sniff -n {namespace} {pod_name} -o {pcap_file_path}"
         process = subprocess.Popen(capture_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
-        sniffing_threads[sniffing_id] = process
-        sniffing_results[sniffing_id] = {"packets": [], "status": "running"}
+        with lock:
+            sniffing_threads[sniffing_id] = process
+            sniffing_results[sniffing_id] = {"packets": [], "status": "running"}
         
         process.wait()
         if process.returncode != 0:
             error_message = f"Command failed or produced no output. Return code: {process.returncode}. STDERR: {process.stderr.read()}"
             logger.error(error_message)
-            sniffing_results[sniffing_id] = {"error": error_message, "status": "failed"}
+            with lock:
+                sniffing_results[sniffing_id] = {"error": error_message, "status": "failed"}
         else:
-            sniffing_results[sniffing_id]["status"] = "completed"
+            with lock:
+                sniffing_results[sniffing_id]["status"] = "completed"
             logger.debug(f"Packet sniffing completed for {sniffing_id}")
 
     def process_packets():
-        while sniffing_results[sniffing_id]["status"] == "running":
+        while True:
+            with lock:
+                if sniffing_results[sniffing_id]["status"] != "running":
+                    break
+
             parse_cmd = f"tshark -r {pcap_file_path} -Y 'nas-5gs or f1ap or ngap or sctp or pfcp or gtp or tcp or dhcp or udp' -T json"
             parse_result = subprocess.run(parse_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
             if parse_result.returncode == 0:
                 packets = json.loads(parse_result.stdout.decode('utf-8'))
-                if 'packets' in sniffing_results[sniffing_id]:
+                with lock:
                     sniffing_results[sniffing_id]["packets"].extend(packets)
                     logger.debug(f"Processed {len(packets)} packets for {sniffing_id}")
-                else:
-                    logger.error(f"Key 'packets' not found in sniffing_results[{sniffing_id}]")
             else:
                 logger.error(f"Packet processing failed for {sniffing_id}. Return code: {parse_result.returncode}")
+            
             sleep(5)  # Poll every 5 seconds
 
     capture_thread = threading.Thread(target=sniff_packets)
@@ -228,10 +226,11 @@ def start_sniffing(request, pod_name):
 @permission_classes([IsAuthenticated])
 def check_sniffing_status(request, sniffing_id):
     try:
-        if sniffing_id in sniffing_results:
-            return JsonResponse(sniffing_results[sniffing_id])
-        else:
-            return JsonResponse({"message": "Sniffing process not found"}, status=404)
+        with lock:
+            if sniffing_id in sniffing_results:
+                return JsonResponse(sniffing_results[sniffing_id])
+            else:
+                return JsonResponse({"message": "Sniffing process not found"}, status=404)
     except Exception as e:
         logger.error(f"Unexpected error checking sniffing status: {str(e)}")
         return JsonResponse({"error": f"Unexpected error: {str(e)}"}, status=500)
