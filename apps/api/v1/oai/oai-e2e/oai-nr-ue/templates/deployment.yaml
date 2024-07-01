@@ -36,10 +36,10 @@ spec:
       containers:
       - name: nr-ue
         image: "{{ .Values.nfimage.repository }}:{{ .Values.nfimage.version }}"
-        # lifecycle:
-        #  postStart:
-        #    exec:
-        #      command: ["/bin/sh", "-c", "ip route add 169.254.25.0/24 via 10.16.0.1 dev eth0 && ip route add 10.233.0.0/16 via 10.16.0.1 dev eth0 && bash oaitun_route.sh > oaitun_route.log 2>&1 &"]
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "ip route delete default via 10.16.0.1 dev eth0 && ip route add 169.254.25.0/24 via 10.16.0.1 dev eth0 && ip route add 10.233.0.0/16 via 10.16.0.1 dev eth0 && bash oaitun_route.sh > oaitun_route.log 2>&1 &"]
         volumeMounts:
           - mountPath: /opt/oai-nr-ue/etc
             name: configuration
