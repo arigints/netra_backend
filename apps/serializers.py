@@ -16,7 +16,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['level', 'completion']
+        fields = ['level', 'completion', 'cu_matches', 'du_matches', 'ue_matches']
 
 class UserListSerializer(serializers.ModelSerializer):
     profile = UserProfileSerializer(read_only=True)
@@ -45,10 +45,18 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 class UserInformationSerializer(serializers.ModelSerializer):
     level = serializers.IntegerField(source='profile.level')
     completion = serializers.FloatField(source='profile.completion')
+    cu_matches = serializers.IntegerField(source='profile.cu_matches')
+    du_matches = serializers.IntegerField(source='profile.du_matches')
+    ue_matches = serializers.IntegerField(source='profile.ue_matches')
 
     class Meta:
         model = User
-        fields = ['username', 'level', 'completion']
+        fields = ['username', 'level', 'completion', 'cu_matches', 'du_matches', 'ue_matches']
+
+
+    class Meta:
+        model = User
+        fields = ['username', 'level', 'completion', 'cu_matches', 'du_matches', 'ue_matches']
 
 class PcapFileSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.username', read_only=True)  # Use username instead of user ID
