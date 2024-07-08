@@ -1,12 +1,13 @@
 kubernetesType: Vanilla  
 
 nfimage:   
-  repository: docker.io/oaisoftwarealliance/oai-gnb            
+  repository: quay.tiplab.local/orca/oai-gnb          
   version: 2023.w49
   pullPolicy: IfNotPresent
 
 imagePullSecrets:
-  - name: "regcred"
+    name: "quay-registry-secret"
+    dockerconfigjson: "eyJhdXRocyI6eyJxdWF5LnRpcGxhYi5sb2NhbCI6eyJ1c2VybmFtZSI6InJhZmxpIiwicGFzc3dvcmQiOiJDYXBzdG9uZTIwMjMiLCJhdXRoIjoiY21GbWJHazZRMkZ3YzNSdmJtVXlNREl6In19fQ=="
 
 serviceAccount:
   create: true
@@ -57,15 +58,15 @@ start:
   gnbcu: true 
   tcpdump: false
 
-includeTcpDumpContainer: false 
+includeTcpDumpContainer: true
 
 tcpdumpimage:
-   repository: docker.io/corfr/tcpdump
+   repository: quay.tiplab.local/orca/tcpdump:latest
    version: latest
    pullPolicy: IfNotPresent
 
 resources:
-  define: false
+  define: true
   limits:
     nf:
       cpu: 100m
