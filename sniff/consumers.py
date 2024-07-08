@@ -31,6 +31,12 @@ class SniffConsumer(AsyncWebsocketConsumer):
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         pcap_filename = f"{namespace}_{component}_{timestamp}.pcap"
 
+        # Define the directory where pcap files will be saved
+        pcap_directory = 'sniff'  # Change this to your desired directory path
+
+        # Full path to the pcap file
+        pcap_filepath = f"{pcap_directory}/{pcap_filename}"
+
         # Command to output tcpdump results directly
         sniff_command = [
             'kubectl', 'exec', '-it', pod_name, '-n', namespace, '--',
@@ -40,7 +46,7 @@ class SniffConsumer(AsyncWebsocketConsumer):
         # Command to save tcpdump results to a pcap file
         pcap_command = [
             'kubectl', 'exec', '-it', pod_name, '-n', namespace, '--',
-            'tcpdump', '-i', 'f1', '-w', pcap_filename, 'sctp or udp port 2152'
+            'tcpdump', '-i', 'f1', '-w', pcap_filepath, 'sctp or udp port 2152'
         ]
 
         # Start the sniffing process to output results directly
@@ -73,4 +79,4 @@ class SniffConsumer(AsyncWebsocketConsumer):
         self.pcap_process = None
 
         # Inform the client that the pcap file has been saved with the filename
-        await self.send(text_data=json.dumps({'message': f'pcap file saved as {pcap_filename}'}))
+        await self.send(text_data=json.dumps({'message': f'pcap file saved as {pcap_filepath}'}))
