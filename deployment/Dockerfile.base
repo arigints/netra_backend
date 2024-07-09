@@ -8,6 +8,7 @@ WORKDIR /app
 ENV TZ=Asia/Bangkok
 ENV OAI=https://github.com/adaptivenetworklab/AN-OPEN-NETRA-VNF.git
 RUN chmod go-r $KUBECONFIG && pip install --no-cache-dir -r /app/requirements.txt
+RUN chmod +x /app/deployment/start.sh
 #RUN chmod +x /app/apps/management/commands/import_all_data.sh && bash /app/apps/management/commands/import_all_data.sh
 
 #running service
