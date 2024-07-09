@@ -18,4 +18,5 @@ services:
     - NET_ADMIN
     ports:
       - 8000:8000
+      - 8002:8002
       
