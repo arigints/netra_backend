@@ -6,7 +6,9 @@ LABEL maintainer="gintingari73@gmail.com"
 COPY . /app
 WORKDIR /app
 ENV TZ=Asia/Bangkok
-ENV OAI=https://github.com/adaptivenetworklab/AN-OPEN-NETRA-VNF.git
+#ENV OAI=https://github.com/adaptivenetworklab/AN-OPEN-NETRA-VNF.git
+RUN apt-get update && apt-get install -y \
+    pkg-config
 RUN chmod go-r $KUBECONFIG && pip install --no-cache-dir -r /app/requirements.txt
 RUN chmod +x /app/deployment/start.sh
 #RUN chmod +x /app/apps/management/commands/import_all_data.sh && bash /app/apps/management/commands/import_all_data.sh
