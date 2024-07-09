@@ -25,7 +25,7 @@ def create_user(request):
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
 def modified_create_user(request):
-        # Attempt to get 'number' from POST data; default to 0 if not found or invalid
+    # Attempt to get 'number' from POST data; default to 0 if not found or invalid
     try:
         number_of_users = int(request.data.get('number', 0))
     except ValueError:
@@ -39,8 +39,7 @@ def modified_create_user(request):
     rbac_api_instance = client.RbacAuthorizationV1Api()
 
     try:
-        user_count = int(request.data.get('number', 0))
-        user_count = max(user_count, 1)  # Ensure at least one user is created
+        user_count = max(number_of_users, 1)  # Ensure at least one user is created
 
         highest_number = 0
         created_users = []  # Track successfully created users
