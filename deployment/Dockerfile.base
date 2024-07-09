@@ -6,16 +6,9 @@ LABEL maintainer="gintingari73@gmail.com"
 COPY . /app
 WORKDIR /app
 ENV TZ=Asia/Bangkok
-#ENV OAI=https://github.com/adaptivenetworklab/AN-OPEN-NETRA-VNF.git
-RUN apt-get update && apt-get install -y \
-    pkg-config \
-    libcairo2-dev \
-    libgirepository1.0-dev \
-    build-essential
 RUN chmod go-r $KUBECONFIG && pip install --no-cache-dir -r /app/requirements.txt
 RUN chmod +x /app/deployment/start.sh
-#RUN chmod +x /app/apps/management/commands/import_all_data.sh && bash /app/apps/management/commands/import_all_data.sh
 
 #running service
-EXPOSE 8000
+EXPOSE 8000 8002
 CMD [ "python3", "manage.py", "runserver", "0.0.0.0:8000" ]
