@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+import re
 
 class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
@@ -82,32 +83,32 @@ class UserConfiguration(models.Model):
     def __str__(self):
         return f"{self.user.username}'s Configuration"
 
-def get_next_available_config(model_class, user_config_field):
-    used_ids = UserConfiguration.objects.values_list(user_config_field, flat=True)
-    all_ids = model_class.objects.values_list('id', flat=True)
-    available_ids = set(all_ids) - set(used_ids)
-    if available_ids:
-        return min(available_ids)
-    else:
+def get_config_by_user_number(model_class, user_number):
+    try:
+        return model_class.objects.get(id=user_number)
+    except model_class.DoesNotExist:
         return None
+
+def extract_user_number(username):
+    match = re.match(r'user(\d+)', username)
+    return int(match.group(1)) if match else None
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
 
-        # Get the next available configuration IDs
-        next_cu_id = get_next_available_config(CUConfig, 'cu_config_id')
-        next_du_id = get_next_available_config(DUConfig, 'du_config_id')
-        next_ue_id = get_next_available_config(UEConfig, 'ue_config_id')
+        # Extract the user number from the username
+        user_number = extract_user_number(instance.username)
+        
+        if user_number:
+            # Get the configurations based on the user number
+            cu_config = get_config_by_user_number(CUConfig, user_number)
+            du_config = get_config_by_user_number(DUConfig, user_number)
+            ue_config = get_config_by_user_number(UEConfig, user_number)
 
-        # Fetch the configuration instances
-        cu_config = CUConfig.objects.filter(id=next_cu_id).first() if next_cu_id else None
-        du_config = DUConfig.objects.filter(id=next_du_id).first() if next_du_id else None
-        ue_config = UEConfig.objects.filter(id=next_ue_id).first() if next_ue_id else None
-
-        if cu_config and du_config and ue_config:
-            UserConfiguration.objects.create(user=instance, cu_config=cu_config, du_config=du_config, ue_config=ue_config)
+            if cu_config and du_config and ue_config:
+                UserConfiguration.objects.create(user=instance, cu_config=cu_config, du_config=du_config, ue_config=ue_config)
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def save_user_profile(sender, instance, **kwargs):
