@@ -10,7 +10,7 @@ ENV KUBECONFIG=/app/deployment/kube-config
 RUN apt-get update && apt-get install -y curl tshark && \
     pip install --no-cache-dir -r /app/requirements.txt && \
     curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && \
-    chmod +x ./kubectl && chmod go-r $KUBECONFIG && \
+    chmod +x ./kubectl && chmod 600 $KUBECONFIG && \
     mv ./kubectl /usr/local/bin/kubectl && \
     curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 && \
     chmod +x get_helm.sh && ./get_helm.sh && \
