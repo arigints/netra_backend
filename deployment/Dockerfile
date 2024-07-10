@@ -7,7 +7,7 @@ COPY . /app
 WORKDIR /install
 ENV TZ=Asia/Jakarta
 ENV KUBECONFIG=/app/deployment/kube-config
-RUN apt-get update && apt-get install -y curl tshark && \
+RUN apt-get update && apt-get install -y curl && \
     pip install --no-cache-dir -r /app/requirements.txt && \
     curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && \
     chmod +x ./kubectl && chmod 600 $KUBECONFIG && \

@@ -6,7 +6,7 @@ LABEL maintainer="gintingari73@gmail.com"
 COPY . /app
 WORKDIR /app
 ENV TZ=Asia/Jakarta
-RUN pip install --no-cache-dir -r /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt && chmod 600 $KUBECONFIG
 
 #running service
 EXPOSE 8000
