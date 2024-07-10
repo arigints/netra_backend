@@ -1,14 +1,13 @@
-FROM quay.tiplab.local/orca/ubuntu:jammy-backendbase
+FROM quay.tiplab.local/orca/be:base
 
 LABEL maintainer="gintingari73@gmail.com"
 
 # set and install requirement packages
 COPY . /app
 WORKDIR /app
-ENV TZ=Asia/Bangkok
-RUN chmod go-r $KUBECONFIG && pip install --no-cache-dir -r /app/requirements.txt
-RUN chmod +x /app/deployment/start.sh
+ENV TZ=Asia/Jakarta
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
 #running service
-EXPOSE 8000 8002
+EXPOSE 8000
 CMD [ "python3", "manage.py", "runserver", "0.0.0.0:8000" ]
