@@ -80,8 +80,8 @@ includeTcpDumpContainer: true #If true it will add a tcpdump container inside ne
 
 ## For openshift you can use rhel8/support-tools:8.7-13
 tcpdumpimage:
-   repository: quay.tiplab.local/orca/tcpdump
-   version: tshark
+   repository: danielguerra/alpine-tshark
+   version: latest
    #pullPolicy: IfNotPresent or Never or Always
    pullPolicy: IfNotPresent
 

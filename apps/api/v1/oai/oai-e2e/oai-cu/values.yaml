@@ -61,8 +61,8 @@ start:
 includeTcpDumpContainer: true
 
 tcpdumpimage:
-   repository: quay.tiplab.local/orca/tcpdump
-   version: tshark
+   repository: danielguerra/alpine-tshark
+   version: latest
    pullPolicy: IfNotPresent
 
 resources:
