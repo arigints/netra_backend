@@ -124,7 +124,7 @@ spec:
         {{- else}}
         command:
           - /bin/sleep
-          - 999999
+          - "999999"
         {{- end}}
       {{- end }}
       volumes:
