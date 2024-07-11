@@ -11,6 +11,16 @@ services:
       - POSTGRES_PASSWORD=opennetra
       - POSTGRES_USER=postgres
       - POSTGRES_DB=orcadb
+  postgres-pcap:
+    image: quay.tiplab.local/orca/postgres:14-alpine
+    ports:
+      - 5433:5432
+    volumes:
+      - /home/bagus/NETRA/apps/postgres-pcap:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=orca
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=pcapdb
   backend:
     image: quay.tiplab.local/orca/be:dev
     cap_add:

@@ -136,7 +136,7 @@ spec:
         {{- else}}
         command:
           - /bin/sleep
-          - infinity
+          - 999999
         {{- end}}
       {{- end }}
       volumes:
