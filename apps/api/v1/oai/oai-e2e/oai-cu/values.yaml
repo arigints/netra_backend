@@ -58,11 +58,11 @@ start:
   gnbcu: true 
   tcpdump: false
 
-includeTcpDumpContainer: false
+includeTcpDumpContainer: true
 
 tcpdumpimage:
    repository: quay.tiplab.local/orca/tcpdump
-   version: latest
+   version: tshark
    pullPolicy: IfNotPresent
 
 resources:
